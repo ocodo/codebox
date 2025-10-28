@@ -33,19 +33,19 @@ interface ProjectFile {
 }
 
 interface CodeBoxProps {
-  projectName?: string;
+  projectName: string;
 }
 
 interface ProjectCodeType {
-  setter: Dispatch<SetStateAction<string | undefined>>;
+  setter: Dispatch<SetStateAction<string>>;
   filename: string;
 }
 
 export const CodeBox: FC<CodeBoxProps> = ({ projectName }) => {
   const [files, setFiles] = useState<ProjectFile[]>([])
-  const [htmlCode, setHtmlCode] = useState<string>()
-  const [jsCode, setJsCode] = useState<string>()
-  const [cssCode, setCssCode] = useState<string>()
+  const [htmlCode, setHtmlCode] = useState<string>('')
+  const [jsCode, setJsCode] = useState<string>('')
+  const [cssCode, setCssCode] = useState<string>('')
 
   const projectCode: ProjectCodeType[] = [
     { setter: setCssCode, filename: 'code.css' },
@@ -93,27 +93,21 @@ export const CodeBox: FC<CodeBoxProps> = ({ projectName }) => {
         <CodeCard title='JS' code={jsCode} />
         <CodeCard title='CSS' code={cssCode} />
       </div>
-      <ViewCard projectName={projectName} html={htmlCode} css={cssCode} />
+      <ViewCard projectName={projectName} />
     </>
   )
 }
 
 interface ViewCardProps {
-  projectName?: string
-  css?: string
-  html: TrustedHTML
+  projectName: string
 }
 
-export const ViewCard: FC<ViewCardProps> = ({ projectName, css, html }) => {
+export const ViewCard: FC<ViewCardProps> = ({ projectName }) => {
+
+  const url = `/api/composite/project/${projectName}`;
+
   return (
-    <div className='bg-white w-full h-[40vh] overflow-y-auto'>
-      <style>
-        {css}
-      </style>
-      <div
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
-    </div>
+    <iframe className='w-full h-[48vh]' src={url}></iframe>
   )
 }
 

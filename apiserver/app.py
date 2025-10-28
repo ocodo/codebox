@@ -138,6 +138,32 @@ async def update_project_file_content(name: str, filename: str, request: Request
         raise HTTPException(404, f"Project {name}/{filename} not found")
 
 
+@api.get("/composite/project/{name}")
+async def get_project_composite(name: str):
+    project_file_path = Path(config.project_root, name)
+    source = {"css": "", "js": "", "html": ""}
+    for k in source.keys():
+        source[k] = project_file_path / f"code.{k}"
+
+    return HTMLResponse(
+        f"""
+        <html>
+            <head>
+                <style>
+                    {Path(source['css']).read_text()}
+                </style>
+                <script>
+                    {Path(source['js']).read_text()}
+                </script>
+            </head>
+            <body>
+                {Path(source['html']).read_text()}
+            </body>
+        </html>
+        """
+    )
+
+
 app.include_router(api, prefix="/api", tags=["api"])
 app.mount("/", StaticFiles(directory="dist", html=True), name="vite_dist")
 
