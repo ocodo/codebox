@@ -1,5 +1,5 @@
 import { CodeCard } from "@/components/code-card";
-import { ViewCard } from "@/components/virew-card";
+import { ViewCard } from "@/components/view-card";
 import { javascript } from '@codemirror/lang-javascript';
 import { html } from '@codemirror/lang-html';
 import { css } from '@codemirror/lang-css';

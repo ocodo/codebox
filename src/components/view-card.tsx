@@ -1,12 +1,13 @@
 import { useProjectContext } from "@/contexts/project-context";
 import { type FC } from "react";
 
+
 export const ViewCard: FC = () => {
   const { projectName, updating, setUpdating } = useProjectContext()
   const url = `/api/composite/project/${projectName}`;
 
   const iframeUrl = () => {
-    if(updating) {
+    if (updating) {
       setUpdating(false)
       return ''
     } else {
@@ -17,5 +18,4 @@ export const ViewCard: FC = () => {
   if (projectName != undefined) {
     return <iframe className='w-full h-[48vh]' src={iframeUrl()}></iframe>
   }
-  return
 }

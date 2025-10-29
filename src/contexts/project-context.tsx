@@ -25,6 +25,8 @@ export interface ProjectContextType {
   projectList: string[];
   updating: boolean;
   setUpdating: Dispatch<SetStateAction<boolean>>;
+  renameCurrentProject: (newName: string) => Promise<void>
+  deleteCurrentProject: () => Promise<void>
 }
 
 export const ProjectContext = createContext<ProjectContextType>({} as ProjectContextType);
@@ -132,6 +134,45 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }
 
+  const renameCurrentProject = async (newName: string): Promise<void> => {
+    if (projectName) {
+      const response = await fetch(`api/project/${projectName}`,{
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({newName})
+      })
+      if (response.ok) {
+        toast(`Renamed ${projectName} to ${newName}`)
+        setProjectName(newName)
+      } else {
+        toast(`Error renaming ${projectName} to ${newName}`)
+      }
+    } else {
+      toast(`No project open`)
+    }
+  }
+
+  const deleteCurrentProject = async (): Promise<void> => {
+    if (projectName) {
+      const response = await fetch(`api/project/${projectName}`,
+        {
+          method: 'DELETE'
+        }
+      )
+      if (response.ok) {
+        toast(`${projectName} deleted`)
+        setProjectName(undefined)
+      } else {
+        toast(`Error deleting ${projectName}`)
+      }
+    } else {
+      toast(`No project open`)
+    }
+
+  }
+
   const fetchProjectFiles = async (name: string): Promise<void> => {
     const response = await fetch(`api/project/${name}`);
     if (response.ok) {
@@ -178,6 +219,8 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       projectList,
       updating,
       setUpdating,
+      renameCurrentProject,
+      deleteCurrentProject,
     }}>
       {children}
     </ProjectContext.Provider>

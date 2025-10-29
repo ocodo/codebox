@@ -2,8 +2,10 @@ import { CodeBox } from '@/components/codebox-main';
 import { Heading } from '@/components/heading';
 import { ProjectSelector } from '@/components/project-selector';
 import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { ProjectProvider, useProjectContext } from '@/contexts/project-context';
 import { ThemeProvider } from '@/contexts/theme-provider';
+
 import { useEffect, type FC } from 'react';
 
 const Main: FC = () => {
@@ -20,7 +22,7 @@ const Main: FC = () => {
         projectName && <CodeBox />
       }
       {
-        projectName || <ProjectSelector />
+        !!projectName  || <ProjectSelector />
       }
     </>
   )
@@ -29,10 +31,12 @@ const Main: FC = () => {
 export const App: FC = () => {
   return (
     <ThemeProvider>
-      <ProjectProvider>
-        <Main />
-        <Toaster />
-      </ProjectProvider>
+      <TooltipProvider>
+        <ProjectProvider>
+          <Main />
+          <Toaster />
+        </ProjectProvider>
+      </TooltipProvider>
     </ThemeProvider>
   )
 }

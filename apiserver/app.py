@@ -1,16 +1,15 @@
 from pathlib import Path
-from fastapi import FastAPI, Request, APIRouter, HTTPException #, Query
+from fastapi import FastAPI, Request, APIRouter, HTTPException  # , Query
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
-
-# from pydantic import BaseModel
-# from pydantic.dataclasses import dataclass
-# from typing import Optional, List
-
+from pydantic.dataclasses import dataclass
 from omegaconf import OmegaConf
 from omegaconf.errors import OmegaConfBaseException
+
+import shutil
 import sys
 import logging
+
 # from ruamel.yaml import YAML
 
 try:
@@ -104,6 +103,42 @@ async def get_project_files(name: str):
         raise HTTPException(404, f"{name}")
 
 
+@dataclass
+class ProjectRenameIn:
+    newName: str
+
+
+@api.patch("/project/{name}")
+async def rename_project(name: str, data: ProjectRenameIn):
+    project_path = Path(config.project_root, name)
+    new_project_path = Path(config.project_root, data.newName)
+    if new_project_path.exists():
+        raise HTTPException(
+            409, f"{data.newName} already exists, overwrite not allowed"
+        )
+    if name and data.newName and project_path.exists():
+        try:
+            project_path.rename(new_project_path)
+            return
+        except Exception as e:
+            raise HTTPException(500, f"Error deleting {name}\n\n{e}")
+    else:
+        raise HTTPException(404, f"{name} not found")
+
+
+@api.delete("/project/{name}")
+async def delete_project(name: str):
+    project_path = Path(config.project_root, name)
+    if name and project_path.exists():
+        try:
+            shutil.rmtree(project_path)
+            return
+        except Exception as e:
+            raise HTTPException(500, f"Error deleting {name}\n\n{e}")
+    else:
+        raise HTTPException(404, f"{name} not found")
+
+
 @api.post("/project/{name}")
 async def create_project(name: str):
     project_path = Path(config.project_root, name)
@@ -112,9 +147,9 @@ async def create_project(name: str):
     else:
         try:
             project_path.mkdir()
-            Path(project_path, 'code.js').touch()
-            Path(project_path, 'code.html').touch()
-            Path(project_path, 'code.css').touch()
+            Path(project_path, "code.js").write_text(config.template.js)
+            Path(project_path, "code.html").write_text(config.template.html)
+            Path(project_path, "code.css").write_text(config.template.css)
         except Exception as e:
             raise HTTPException(500, f"Error creating project {name}\n\n{e}")
 

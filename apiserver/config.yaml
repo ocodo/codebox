@@ -1,1 +1,8 @@
 project_root: /mnt/Mira/codebox
+template:
+  js: |
+    // JS
+  css: |
+    /* CSS */
+  html: |
+    <div>Hello World</div>

@@ -20,7 +20,7 @@ interface LongPressButtonProps {
   onLongPress: () => void;
 }
 
-const LongPressButton: React.FC<LongPressButtonProps> = ({
+export const LongPressButton: React.FC<LongPressButtonProps> = ({
   children,
   childrenClassName,
   fillUpColorClass,
@@ -63,7 +63,10 @@ const LongPressButton: React.FC<LongPressButtonProps> = ({
         cancelAnimationFrame(fillAnimationFrameId.current);
       }
       fillAnimationFrameId.current = undefined;
-      setFillPercentage(100);
+      setTimeout(
+        () => setFillPercentage(() => 0),
+        200
+      )
       onLongPress();
     }
   }, [longPressDuration, onLongPress]);
@@ -163,7 +166,7 @@ const LongPressButton: React.FC<LongPressButtonProps> = ({
   return (
     <div
       className={cn(
-        `relative overflow-hidden group rounded-full p-2`, // Button itself is relative, creating a stacking context
+        `relative overflow-hidden group cursor-pointer p-2 rounded-full hover:bg-foreground/20 duration-500 transition-colors`,
         className
       )}
 
@@ -195,5 +198,3 @@ const LongPressButton: React.FC<LongPressButtonProps> = ({
     </div>
   );
 };
-
-export default LongPressButton;

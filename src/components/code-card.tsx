@@ -1,10 +1,13 @@
-import { useCallback, type Dispatch, type FC, type SetStateAction } from "react"
+import { useCallback, useContext, type Dispatch, type FC, type SetStateAction } from "react"
 
 import CodeMirror from '@uiw/react-codemirror';
 
-import { gruvboxDark } from '@uiw/codemirror-themes-all';
+import { vscodeLight } from '@uiw/codemirror-themes-all';
+import { tokyoNight } from '@uiw/codemirror-themes-all';
 import { Save } from "lucide-react";
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
+import { ThemeContext } from "@/contexts/theme-context";
+import { TooltipCompact } from "@/components/tooltip-compact";
 
 interface CodeCardProps {
   title: string;
@@ -17,6 +20,8 @@ interface CodeCardProps {
 
 export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, setCode, save, extension }) => {
 
+  const { theme } = useContext(ThemeContext)
+
   const onChange = useCallback((val: string) => {
     console.log('val:', val);
     setCode(val);
@@ -27,7 +32,11 @@ export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, setCode, save,
       <div className='text-xs p-1'>
         <div className="flex-row flex gap-2 items-center justify-between">
           <div>
-            {title} ({new Date(mtime * 1000).toISOString()})
+            <TooltipCompact
+              tooltipChildren={`Last updated ${new Date(mtime * 1000).toLocaleString()}`}
+            >
+              {title}
+            </TooltipCompact>
           </div>
           <Save className={buttonIconClasses} style={thinIconStyle} onClick={save} />
         </div>
@@ -37,7 +46,7 @@ export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, setCode, save,
           <CodeMirror
             value={code}
             height="40vh"
-            theme={gruvboxDark}
+            theme={theme == 'dark' ? tokyoNight : vscodeLight}
             extensions={extension}
             onChange={onChange} />
         }
