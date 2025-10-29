@@ -5,7 +5,7 @@ import { ThemeSwitch } from "@/components/theme-switch"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { useProjectContext } from "@/contexts/project-context"
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles"
-import { CircleX, Edit, Trash2 } from "lucide-react"
+import { CircleX, Edit, Settings, Trash2 } from "lucide-react"
 import type { FC } from "react"
 import { toast } from "sonner"
 
@@ -19,6 +19,16 @@ export const ProjectToolbar: FC = () => {
 
   return (
     <div className='flex flex-row gap-2 items-center'>
+      {
+        projectName &&
+        <>
+          <TooltipCompact tooltipChildren={`Project settings`}>
+            <Settings
+              className={buttonIconClasses}
+              style={thinIconStyle} />
+          </TooltipCompact>
+        </>
+      }
       {
         projectName &&
         <>
@@ -43,6 +53,7 @@ export const ProjectToolbar: FC = () => {
                 }
               } />
           </TooltipCompact>
+
           <LongPressTooltipButton
             duration={200}
             title={`Close Project ${projectName}`}

@@ -1,5 +1,7 @@
 import { useProjectContext } from "@/contexts/project-context";
-import { type FC } from "react";
+import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
+import { Fullscreen } from "lucide-react";
+import { useRef, type FC } from "react";
 
 
 export const ViewCard: FC = () => {
@@ -15,7 +17,35 @@ export const ViewCard: FC = () => {
     }
   }
 
+  const toggleFullscreen = () => {
+    if (!iframeRef.current) return;
+
+    if (document.fullscreenElement === iframeRef.current) {
+      document.exitFullscreen();
+    } else {
+      iframeRef.current.requestFullscreen();
+    }
+  };
+
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
   if (projectName != undefined) {
-    return <iframe className='w-full h-[48vh]' src={iframeUrl()}></iframe>
+    return (
+      <div>
+        <Fullscreen
+          style={thinIconStyle}
+          className={buttonIconClasses}
+          onClick={() => {
+            if (iframeRef.current != null) {
+              toggleFullscreen()
+            }
+          }}
+        />
+        <iframe
+          ref={iframeRef}
+          className='w-full h-[48vh]'
+          src={iframeUrl()}></iframe>
+      </div>
+    )
   }
 }

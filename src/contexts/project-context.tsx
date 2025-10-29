@@ -34,7 +34,7 @@ export const ProjectContext = createContext<ProjectContextType>({} as ProjectCon
 export const useProjectContext = (): ProjectContextType => {
   const context = useContext(ProjectContext);
   if (!context) {
-    throw new Error('useServerConfig must be used within a ServerConfigProvider');
+    throw new Error('useProjectContext must be used within a ProjectProvider');
   }
   return context;
 };

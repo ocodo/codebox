@@ -3,6 +3,7 @@ import { Heading } from '@/components/heading';
 import { ProjectSelector } from '@/components/project-selector';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { LayoutProvider } from '@/contexts/layout-context';
 import { ProjectProvider, useProjectContext } from '@/contexts/project-context';
 import { ThemeProvider } from '@/contexts/theme-provider';
 
@@ -22,7 +23,7 @@ const Main: FC = () => {
         projectName && <CodeBox />
       }
       {
-        !!projectName  || <ProjectSelector />
+        !!projectName || <ProjectSelector />
       }
     </>
   )
@@ -32,10 +33,12 @@ export const App: FC = () => {
   return (
     <ThemeProvider>
       <TooltipProvider>
-        <ProjectProvider>
-          <Main />
-          <Toaster />
-        </ProjectProvider>
+        <LayoutProvider>
+          <ProjectProvider>
+            <Main />
+            <Toaster />
+          </ProjectProvider>
+        </LayoutProvider>
       </TooltipProvider>
     </ThemeProvider>
   )

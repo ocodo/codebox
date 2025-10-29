@@ -1,16 +1,22 @@
 from pathlib import Path
-from fastapi import FastAPI, Request, APIRouter, HTTPException  # , Query
+from fastapi import FastAPI, Request, APIRouter, HTTPException, Query
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic.dataclasses import dataclass
 from omegaconf import OmegaConf
 from omegaconf.errors import OmegaConfBaseException
-
+from typing import Optional
 import shutil
 import sys
 import logging
 
 # from ruamel.yaml import YAML
+CONTENT_TYPE_MAPPING = {
+    "js": "application/javascript",
+    "html": "text/html",
+    "text": "text/plain",
+    "css": "text/css",
+}
 
 try:
     config_path = Path(__file__).parent / "config.yaml"
@@ -82,12 +88,25 @@ async def get_projects():
 
 
 @api.get("/project/{name}/{filename}")
-async def get_project_file(name: str, filename: str):
+async def get_project_file(
+    name: str,
+    filename: str,
+    content: Optional[str] = Query(
+        None,
+        regex="^(js|html|text|css)$",
+        description="Specify content type to ensure correct MIME type: js | html | text | css"
+    )
+):
     file_path = Path(config.project_root, name, filename)
-    if file_path.exists():
-        return FileResponse(file_path)
-    else:
-        raise HTTPException(404, f"{name}/{filename}")
+
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail=f"File not found: {name}/{filename}")
+
+    media_type = None
+    if content:
+        media_type = CONTENT_TYPE_MAPPING.get(content)
+
+    return FileResponse(path=file_path, media_type=media_type)
 
 
 @api.get("/project/{name}")
