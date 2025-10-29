@@ -6,7 +6,7 @@ import { TooltipCompact } from "@/components/tooltip-compact"
 
 export const ThemeSwitch: FC = () => {
 
-  const { theme, setTheme } = useContext<ThemeContextType>(ThemeContext)
+  const { theme, toggleTheme } = useContext<ThemeContextType>(ThemeContext)
 
   const iconProps = {
     className: buttonIconClasses,
@@ -16,12 +16,14 @@ export const ThemeSwitch: FC = () => {
   }
 
   return (
-    <TooltipCompact tooltipChildren={`Switch theme to ${theme === 'dark' ? 'light': 'dark'} mode`}>
-      {
-        theme === 'dark'
-          ? <Moon onClick={() => setTheme('light')} {...iconProps} />
-          : <Sun onClick={() => setTheme('dark')} {...iconProps} />
-      }
+    <TooltipCompact tooltipChildren={`Switch theme to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+      <div onClick={() => toggleTheme()} >
+        {
+          theme === 'dark'
+            ? <Moon {...iconProps} />
+            : <Sun {...iconProps} />
+        }
+      </div>
     </TooltipCompact>
   )
 }
