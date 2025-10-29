@@ -10,6 +10,7 @@ from omegaconf import OmegaConf
 from omegaconf.errors import OmegaConfBaseException
 import sys
 import logging
+from ruamel.yaml import yaml
 
 try:
     config_path = Path(__file__).parent / "config.yaml"
@@ -140,10 +141,15 @@ async def update_project_file_content(name: str, filename: str, request: Request
 
 @api.get("/composite/project/{name}")
 async def get_project_composite(name: str):
-    project_file_path = Path(config.project_root, name)
+    project_path = Path(config.project_root, name)
+
+    # project settings from codebox.yaml...
+    # css:
+    #   preprocessor: '
+
     source = {"css": "", "js": "", "html": ""}
     for k in source.keys():
-        source[k] = project_file_path / f"code.{k}"
+        source[k] = project_path / f"code.{k}"
 
     return HTMLResponse(
         f"""

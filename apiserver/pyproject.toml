@@ -8,4 +8,5 @@ dependencies = [
     "fastapi[standard]>=0.120.1",
     "omegaconf>=2.3.0",
     "python-slugify>=8.0.4",
+    "ruamel-yaml>=0.18.16",
 ]
