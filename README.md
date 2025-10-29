@@ -1,3 +1,3 @@
 # CodeBox
 
-SelfHosted CodePen-like
+Self Hosted CodePen-like work in progress
