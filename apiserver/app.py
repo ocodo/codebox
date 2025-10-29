@@ -1,16 +1,17 @@
 from pathlib import Path
-from fastapi import FastAPI, Request, APIRouter, HTTPException, Query
+from fastapi import FastAPI, Request, APIRouter, HTTPException #, Query
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 # from pydantic import BaseModel
 # from pydantic.dataclasses import dataclass
 # from typing import Optional, List
+
 from omegaconf import OmegaConf
 from omegaconf.errors import OmegaConfBaseException
 import sys
 import logging
-from ruamel.yaml import yaml
+# from ruamel.yaml import YAML
 
 try:
     config_path = Path(__file__).parent / "config.yaml"
@@ -95,7 +96,7 @@ async def get_project_files(name: str):
     project_path = Path(config.project_root, name)
     if project_path.exists():
         files = [
-            {"filename": file.name, "stat": list(file.stat())}
+            {"filename": file.name, "mtime": file.stat().st_mtime}
             for file in project_path.glob("/".join(["*"] * 1))
         ]
         return files
@@ -111,8 +112,11 @@ async def create_project(name: str):
     else:
         try:
             project_path.mkdir()
-        except Exception:
-            raise HTTPException(500, f"Error creating project {name}")
+            Path(project_path, 'code.js').touch()
+            Path(project_path, 'code.html').touch()
+            Path(project_path, 'code.css').touch()
+        except Exception as e:
+            raise HTTPException(500, f"Error creating project {name}\n\n{e}")
 
 
 @api.post("/project/{name}/{filename}")
@@ -145,7 +149,12 @@ async def get_project_composite(name: str):
 
     # project settings from codebox.yaml...
     # css:
-    #   preprocessor: '
+    #   preprocessor: ?
+    # html:
+    #   preprocessor: ?
+    # js:
+    #   preprocessor: ?
+    # codemirror: ?
 
     source = {"css": "", "js": "", "html": ""}
     for k in source.keys():
@@ -153,6 +162,7 @@ async def get_project_composite(name: str):
 
     return HTMLResponse(
         f"""
+        <!DOCTYPE html>
         <html>
             <head>
                 <style>
