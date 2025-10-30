@@ -17,7 +17,7 @@ const Main: FC = () => {
   }, [projectName])
 
   return (
-    <>
+    <div>
       <Heading title='CodeBox' />
       {
         projectName && <CodeBox />
@@ -25,7 +25,7 @@ const Main: FC = () => {
       {
         !!projectName || <ProjectSelector />
       }
-    </>
+    </div>
   )
 }
 

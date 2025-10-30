@@ -4,10 +4,11 @@ import CodeMirror from '@uiw/react-codemirror';
 
 import { vscodeLight } from '@uiw/codemirror-themes-all';
 import { tokyoNight } from '@uiw/codemirror-themes-all';
-import { Fullscreen, Save } from "lucide-react";
+import { Focus, Fullscreen, Save } from "lucide-react";
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
 import { ThemeContext } from "@/contexts/theme-context";
 import { TooltipCompact } from "@/components/tooltip-compact";
+import { useProjectContext } from "@/contexts/project-context";
 
 interface CodeCardProps {
   title: string;
@@ -21,6 +22,7 @@ interface CodeCardProps {
 export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, setCode, save, extension }) => {
 
   const { theme } = useContext(ThemeContext)
+  const { focused, setFocused } = useProjectContext()
 
   const onChange = useCallback((val: string) => {
     console.log('val:', val);
@@ -40,6 +42,14 @@ export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, setCode, save,
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
+
+  const focusCard = () => {
+    if (focused == title) {
+      setFocused('')
+    } else {
+      setFocused(title)
+    }
+  }
 
   const toggleFullscreen = () => {
     if (!cardRef.current) return;
@@ -65,6 +75,9 @@ export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, setCode, save,
             </TooltipCompact>
           </div>
           <div className="flex flex-row gap-2 items-center justify-end">
+            <TooltipCompact tooltipChildren={'Focus'}>
+              <Focus className={buttonIconClasses} style={thinIconStyle} onClick={() => focusCard()} />
+            </TooltipCompact>
             <TooltipCompact tooltipChildren={'Full Screen'}>
               <Fullscreen className={buttonIconClasses} style={thinIconStyle} onClick={() => toggleFullscreen()} />
             </TooltipCompact>

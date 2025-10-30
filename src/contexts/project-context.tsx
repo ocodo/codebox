@@ -23,6 +23,8 @@ export interface ProjectContextType {
   setCssMtime: Dispatch<SetStateAction<number>>;
   fetchProjects: () => Promise<void>;
   projectList: string[];
+  focused: string;
+  setFocused: Dispatch<SetStateAction<string>>;
   updating: boolean;
   setUpdating: Dispatch<SetStateAction<boolean>>;
   renameCurrentProject: (newName: string) => Promise<void>
@@ -62,6 +64,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [jsMtime, setJsMtime] = useState<number>(0)
   const [cssMtime, setCssMtime] = useState<number>(0)
   const [updating, setUpdating] = useState<boolean>(false)
+  const [focused, setFocused] = useState<string>('')
 
   const projectCode: ProjectCodeType[] = [
     {
@@ -217,6 +220,8 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       setCssMtime,
       fetchProjects,
       projectList,
+      focused,
+      setFocused,
       updating,
       setUpdating,
       renameCurrentProject,
