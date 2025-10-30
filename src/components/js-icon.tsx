@@ -5,7 +5,7 @@ export const JSIcon = (props: SVGProps<SVGSVGElement>) => {
   return (
     <svg viewBox="0 0 15 15" {...props}>
       <rect fill="#fc7d00" width="15" height="15" rx="4" />
-      <text x="2.6" y="10" font-size="8" font-weight="bold" >{text}</text>
+      <text x="2.6" y="10" fontSize="8" fontWeight="bold" >{text}</text>
     </svg>
   )
 }
