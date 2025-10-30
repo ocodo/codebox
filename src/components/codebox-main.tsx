@@ -1,14 +1,14 @@
 import { ViewCard } from "@/components/view-card";
 import { type FC, useEffect } from "react";
 import { useProjectContext } from "@/contexts/project-context";
-import { CodeColumsLayout } from "@/components/code-columns-layout";
-export const CodeBox: FC = () => {
+import { CodeColumsLayout } from "@/components/code-layout";
 
+export const CodeBox: FC = () => {
   const {
     projectName,
+    layout,
     fetchProjectFiles,
   } = useProjectContext()
-
 
   useEffect(
     () => {
@@ -20,9 +20,9 @@ export const CodeBox: FC = () => {
   );
 
   return (
-    <div>
-      <CodeColumsLayout />
-      <ViewCard />
+    <div className={`h-fill grid ${layout == 'vertical' ? 'grid-cols-1' : 'grid-cols-2 gap-2'}`} >
+        <CodeColumsLayout />
+        <ViewCard />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { type FC } from 'react';
 import { thinIconStyle } from '@/lib/styles';
 import { useProjectContext } from '@/contexts/project-context';
-import { CodeBoxIcon } from '@/components/code-box-icon';
+import { CodeBoxIcon } from '@/components/codebox-icon';
 import { ProjectToolbar } from '@/components/project.-toolbar';
 
 interface HeadingProps {

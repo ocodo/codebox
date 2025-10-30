@@ -21,7 +21,7 @@ export interface CodeCardProps {
 export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, codeSet, save, extension }) => {
 
   const { theme } = useContext(ThemeContext)
-  const { focused, setFocused } = useProjectContext()
+  const { focused, setFocused, layout, isFocused, horizontal } = useProjectContext()
 
   const onChange = useCallback((val: string) => {
     console.log('val:', val);
@@ -59,12 +59,19 @@ export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, codeSet, save,
     }
   };
 
+  const codeMirrorHeight = () => {
+    if (isFullscreen) return '95hv';
+    if (isFocused(title) && horizontal()) return '80vh';
+    if (horizontal()) return '23vh'
+    return '40vh'
+  }
+
   const cardRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <div ref={cardRef} className="h-full">
       <div className='text-xs p-1'>
-        <div className="flex-row flex gap-2 items-center justify-between">
+        <div className={`flex-row flex gap-2 items-center justify-between`}>
           <div>
             <TooltipCompact
               tooltipChildren={`Last updated ${new Date(mtime * 1000).toLocaleString()}`}
@@ -85,11 +92,12 @@ export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, codeSet, save,
           </div>
         </div>
       </div>
-      <div className={`h-[${isFullscreen ? '90vh' : '35vh'}] bg-card rounded-lg border border-card overflow-y-auto`}>
+      <div className={`bg-card rounded-lg border border-card overflow-y-auto`}>
         {extension &&
           <CodeMirror
             value={code}
-            height={isFullscreen ? '95vh' : '40vh'}
+            width={layout == 'horizontal' ? '50vw' : '100vw'}
+            height={codeMirrorHeight()}
             theme={theme == 'dark' ? tokyoNight : vscodeLight}
             extensions={extension}
             onChange={onChange} />

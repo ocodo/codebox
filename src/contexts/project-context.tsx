@@ -7,6 +7,9 @@ import { html } from '@codemirror/lang-html';
 import { css } from '@codemirror/lang-css';
 import html2canvas from 'html2canvas';
 import type { CodeCardProps } from "@/components/code-card";
+import { useLocalStorage } from "usehooks-ts";
+
+type Layout = 'vertical' | 'horizontal';
 
 export interface ProjectContextType {
   projectName: string | undefined
@@ -33,10 +36,16 @@ export interface ProjectContextType {
   setFocused: Dispatch<SetStateAction<string>>;
   updating: boolean;
   setUpdating: Dispatch<SetStateAction<boolean>>;
-  renameCurrentProject: (newName: string) => Promise<void>
-  deleteCurrentProject: () => Promise<void>
-  snapshotView: () => Promise<void>
-  codeCards: CodeCardProps[]
+  renameCurrentProject: (newName: string) => Promise<void>;
+  deleteCurrentProject: () => Promise<void>;
+  snapshotView: () => Promise<void>;
+  codeCards: CodeCardProps[];
+  layout: Layout;
+  setLayout: (newValue: Layout) => void;
+  toggleLayout: () => void;
+  horizontal: () => boolean;
+  vertical: () => boolean;
+  isFocused: (title: string) => boolean;
 }
 
 export const ProjectContext = createContext<ProjectContextType>({} as ProjectContextType);
@@ -64,7 +73,7 @@ interface ProjectCodeType {
 }
 
 export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
-
+  const [layout, setLayout] = useLocalStorage<Layout>('viewLayout', 'vertical')
   const [projectName, setProjectName] = useState<string | undefined>()
   const [htmlCode, setHtmlCode] = useState<string>('')
   const [jsCode, setJsCode] = useState<string>('')
@@ -74,6 +83,14 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [cssMtime, setCssMtime] = useState<number>(0)
   const [updating, setUpdating] = useState<boolean>(false)
   const [focused, setFocused] = useState<string>('')
+
+  const toggleLayout = () => setLayout(layout == 'vertical' ? 'horizontal' : 'vertical')
+
+  const vertical = () => layout == 'vertical';
+
+  const horizontal = () => layout == 'horizontal';
+
+  const isFocused = (title: string) => focused == title
 
   const projectCode: ProjectCodeType[] = [
     {
@@ -302,6 +319,12 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       projectName,
       projectCode,
       codeCards,
+      vertical,
+      horizontal,
+      isFocused,
+      layout,
+      setLayout,
+      toggleLayout,
       setProjectName,
       fetchProjectFiles,
       updateProjectFile,

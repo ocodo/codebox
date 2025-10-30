@@ -5,8 +5,10 @@ import { useRef, type FC } from "react";
 
 
 export const ViewCard: FC = () => {
-  const { projectName, updating, setUpdating } = useProjectContext()
+  const { projectName, updating, setUpdating, horizontal } = useProjectContext()
   const url = `/api/composite/project/${projectName}`;
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  // const isFullscreen = document.fullscreenElement === iframeRef?.current;
 
   const iframeUrl = () => {
     if (updating) {
@@ -27,26 +29,23 @@ export const ViewCard: FC = () => {
     }
   };
 
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
-
-  if (projectName != undefined) {
-    return (
-      <div>
-        <Fullscreen
-          style={thinIconStyle}
-          className={buttonIconClasses}
-          onClick={() => {
-            if (iframeRef.current != null) {
-              toggleFullscreen()
-            }
-          }}
-        />
-        <iframe
-          id="iframe-view"
-          ref={iframeRef}
-          className='w-full h-[44vh]'
-          src={iframeUrl()}></iframe>
-      </div>
-    )
-  }
+  return (
+    projectName &&
+    <div className="h-full">
+      <Fullscreen
+        style={thinIconStyle}
+        className={buttonIconClasses}
+        onClick={() => {
+          if (iframeRef.current != null) {
+            toggleFullscreen()
+          }
+        }}
+      />
+      <iframe
+        id="iframe-view"
+        ref={iframeRef}
+        className={`w-full ${horizontal() ? 'h-[83vh]' : 'h-[38vh]'}` }
+        src={iframeUrl()}></iframe>
+    </div>
+  )
 }

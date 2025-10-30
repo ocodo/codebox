@@ -4,7 +4,6 @@ import { ProjectSelector } from '@/components/project-selector';
 import { SettingsModal } from '@/components/settings-modal';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { LayoutProvider } from '@/contexts/layout-context';
 import { ProjectProvider, useProjectContext } from '@/contexts/project-context';
 import { SettingsProvider } from '@/contexts/settings-context';
 import { ThemeProvider } from '@/contexts/theme-provider';
@@ -19,7 +18,7 @@ const Main: FC = () => {
   }, [projectName])
 
   return (
-    <div>
+    <div className='h-[100vh]'>
       <Heading title='CodeBox' />
       {
         projectName && <CodeBox />
@@ -36,13 +35,11 @@ export const App: FC = () => {
     <ThemeProvider>
       <TooltipProvider>
         <SettingsProvider>
-          <LayoutProvider>
-            <ProjectProvider>
-              <Main />
-              <SettingsModal />
-              <Toaster />
-            </ProjectProvider>
-          </LayoutProvider>
+          <ProjectProvider>
+            <Main />
+            <SettingsModal />
+            <Toaster />
+          </ProjectProvider>
         </SettingsProvider>
       </TooltipProvider>
     </ThemeProvider>

@@ -6,7 +6,7 @@ import { TooltipCompact } from "@/components/tooltip-compact"
 import { useProjectContext } from "@/contexts/project-context"
 import { useSettings } from "@/contexts/settings-context"
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles"
-import { Camera, CircleX, Edit, Save, Settings, Trash2 } from "lucide-react"
+import { Camera, CircleX, Columns3, Edit, Rows3, Save, Settings, Trash2 } from "lucide-react"
 import type { FC } from "react"
 import { toast } from "sonner"
 
@@ -21,12 +21,31 @@ export const ProjectToolbar: FC = () => {
     cssCode,
     updateProjectFile,
     snapshotView,
+    toggleLayout,
+    layout,
   } = useProjectContext()
 
   const { setOpen } = useSettings()
 
   return (
     <div className='flex flex-row gap-2 items-center'>
+      {
+        projectName &&
+        <TooltipCompact tooltipChildren={`Set layout to ${layout == 'horizontal' ? 'vertical' : 'horizontal'}`}>
+
+          <div onClick={toggleLayout}
+            className="cursor-pointer" >
+            {
+              layout == 'vertical'
+                ?
+                <Columns3 style={thinIconStyle} />
+                :
+                <Rows3 style={thinIconStyle} />
+            }
+          </div>
+        </TooltipCompact>
+
+      }
       {
         projectName &&
         <LongPressTooltipButton
@@ -51,7 +70,7 @@ export const ProjectToolbar: FC = () => {
       {
         projectName &&
         <>
-          <TooltipCompact tooltipChildren={`Save Snapshot`}>
+          <TooltipCompact tooltipChildren={`Set thumbnail from view`}>
             <Camera
               onClick={() => snapshotView()}
               className={buttonIconClasses}
