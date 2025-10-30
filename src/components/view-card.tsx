@@ -1,5 +1,6 @@
 import { useProjectContext } from "@/contexts/project-context";
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
+import { cn } from "@/lib/utils";
 import { Fullscreen } from "lucide-react";
 import { useRef, type FC } from "react";
 
@@ -32,19 +33,21 @@ export const ViewCard: FC = () => {
   return (
     projectName &&
     <div className="h-full">
-      <Fullscreen
-        style={thinIconStyle}
-        className={buttonIconClasses}
-        onClick={() => {
-          if (iframeRef.current != null) {
-            toggleFullscreen()
-          }
-        }}
-      />
+      <div className="p-1 flex flex-row items-center justify-end">
+        <Fullscreen
+          style={thinIconStyle}
+          className={cn(buttonIconClasses)}
+          onClick={() => {
+            if (iframeRef.current != null) {
+              toggleFullscreen()
+            }
+          }}
+        />
+      </div>
       <iframe
         id="iframe-view"
         ref={iframeRef}
-        className={`w-full ${horizontal() ? 'h-[83vh]' : 'h-[38vh]'}` }
+        className={`w-full ${horizontal() ? 'h-[83vh]' : 'h-[47vh]'}`}
         src={iframeUrl()}></iframe>
     </div>
   )

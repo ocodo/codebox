@@ -1,12 +1,12 @@
 import { Moon, Sun } from "lucide-react"
-import { useContext, type FC } from "react"
-import { ThemeContext, type ThemeContextType } from "@/contexts/theme-context"
+import type { FC } from "react"
 import { buttonIconClasses } from "@/lib/styles"
 import { TooltipCompact } from "@/components/tooltip-compact"
+import { useTheme } from "@/contexts/theme-context"
 
 export const ThemeSwitch: FC = () => {
 
-  const { theme, toggleTheme } = useContext<ThemeContextType>(ThemeContext)
+  const { theme, toggleTheme } = useTheme()
 
   const iconProps = {
     className: buttonIconClasses,

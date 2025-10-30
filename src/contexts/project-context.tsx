@@ -8,6 +8,9 @@ import { css } from '@codemirror/lang-css';
 import html2canvas from 'html2canvas';
 import type { CodeCardProps } from "@/components/code-card";
 import { useLocalStorage } from "usehooks-ts";
+import { JSIcon } from "@/components/js-icon";
+import { CSSIcon } from "@/components/css-icon";
+import { HTMLIcon } from "@/components/html-icon";
 
 type Layout = 'vertical' | 'horizontal';
 
@@ -70,6 +73,7 @@ interface ProjectCodeType {
   mtime: number;
   mtimeSet: Dispatch<SetStateAction<number>>;
   filename: string;
+  icon: ReactNode;
 }
 
 export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
@@ -94,20 +98,22 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const projectCode: ProjectCodeType[] = [
     {
-      title: 'CSS',
-      mtime: cssMtime,
-      mtimeSet: setCssMtime,
-      code: cssCode,
-      codeSet: setCssCode,
-      filename: 'code.css'
-    },
-    {
       title: 'HTML',
       mtime: htmlMtime,
       mtimeSet: setHtmlMtime,
       code: htmlCode,
       codeSet: setHtmlCode,
-      filename: 'code.html'
+      filename: 'code.html',
+      icon: <HTMLIcon className="w-5 h-5" />
+    },
+    {
+      title: 'CSS',
+      mtime: cssMtime,
+      mtimeSet: setCssMtime,
+      code: cssCode,
+      codeSet: setCssCode,
+      filename: 'code.css',
+      icon: <CSSIcon className="w-5 h-5" />
     },
     {
       title: 'JS',
@@ -115,7 +121,8 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       mtimeSet: setJsMtime,
       code: jsCode,
       codeSet: setJsCode,
-      filename: 'code.js'
+      filename: 'code.js',
+      icon: <JSIcon className="w-5 h-5" />
     },
   ]
 
@@ -126,14 +133,14 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const codeCards: CodeCardProps[] = [
     {
-      title: 'CSS',
-      save: () => updateProjectFile('code.css', cssCode),
-      extension: [css()]
-    },
-    {
       title: 'HTML',
       save: () => updateProjectFile('code.html', htmlCode),
       extension: [html()]
+    },
+    {
+      title: 'CSS',
+      save: () => updateProjectFile('code.css', cssCode),
+      extension: [css()]
     },
     {
       title: 'JS',
@@ -164,7 +171,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const styleSheet = iframeDoc.styleSheets[0];
 
     const rules = Array.from(styleSheet.cssRules || styleSheet.rules);
-    const bodyRule : CSSStyleRule | null = rules.find(rule => (rule as CSSStyleRule).selectorText === "body") as CSSStyleRule;
+    const bodyRule: CSSStyleRule | null = rules.find(rule => (rule as CSSStyleRule).selectorText === "body") as CSSStyleRule;
     const bgColor = bodyRule?.style.background;
 
     console.log(`BG color = ${bgColor}`);

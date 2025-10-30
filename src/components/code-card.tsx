@@ -1,9 +1,9 @@
 import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import type { Dispatch, FC, SetStateAction } from "react";
+import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
 import CodeMirror from '@uiw/react-codemirror';
 import { vscodeLight } from '@uiw/codemirror-themes-all';
 import { tokyoNight } from '@uiw/codemirror-themes-all';
-import { Columns3, Focus, Fullscreen, Rows3, Save } from "lucide-react";
+import { Fullscreen } from "lucide-react";
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
 import { ThemeContext } from "@/contexts/theme-context";
 import { TooltipCompact } from "@/components/tooltip-compact";
@@ -16,12 +16,13 @@ export interface CodeCardProps {
   mtime: number;
   save: () => void;
   extension: any[]
+  icon: ReactNode
 }
 
-export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, codeSet, save, extension }) => {
+export const CodeCard: FC<CodeCardProps> = ({ icon, title, code, mtime, codeSet, extension }) => {
 
   const { theme } = useContext(ThemeContext)
-  const { focused, setFocused, layout, isFocused, horizontal } = useProjectContext()
+  const { focused, setFocused, vertical, isFocused, horizontal } = useProjectContext()
 
   const onChange = useCallback((val: string) => {
     console.log('val:', val);
@@ -63,7 +64,13 @@ export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, codeSet, save,
     if (isFullscreen) return '95hv';
     if (isFocused(title) && horizontal()) return '80vh';
     if (horizontal()) return '23vh'
-    return '40vh'
+    return '30vh'
+  }
+
+  const codeMirrorWidth = () => {
+    if (isFullscreen) return '100vw';
+    if (isFocused(title) && vertical()) return '100vw';
+    return '50vw'
   }
 
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -71,31 +78,31 @@ export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, codeSet, save,
   return (
     <div ref={cardRef} className="h-full">
       <div className='text-xs p-1'>
-        <div className={`flex-row flex gap-2 items-center justify-between`}>
-          <div>
-            <TooltipCompact
-              tooltipChildren={`Last updated ${new Date(mtime * 1000).toLocaleString()}`}
-            >
-              {title}
-            </TooltipCompact>
-          </div>
-          <div className="flex flex-row gap-2 items-center justify-end">
-            <TooltipCompact tooltipChildren={focused == title ? 'Show All' : 'Hide Others'}>
-              <div onClick={() => focusCard()}>
-                {
-                  focused == title
-                    ? horizontal()
-                      ? <Rows3 className={buttonIconClasses} style={thinIconStyle} />
-                      : <Columns3 className={buttonIconClasses} style={thinIconStyle} />
-                    : <Focus className={buttonIconClasses} style={thinIconStyle} />
-                }
+        <div className={`flex-row flex gap-2 items-center justify-between`} onDoubleClick={focusCard}>
+          <TooltipCompact tooltipChildren={
+            <>
+              <div>
+                Last updated ${new Date(mtime * 1000).toLocaleString()}
               </div>
-            </TooltipCompact>
+              <div style={{fontSize: 'x-small'}}>
+                Double Click to Expand/Restore
+              </div>
+            </>
+          } >
+            <div>
+              <div className='flex flex-row gap-2 items-center justify-start'>
+                <div>
+                  {icon}
+                </div>
+                <div>
+                  {title}
+                </div>
+              </div>
+            </div>
+          </TooltipCompact>
+          <div className="flex flex-row gap-2 items-center justify-end">
             <TooltipCompact tooltipChildren={'Full Screen'}>
-              <Fullscreen className={buttonIconClasses} style={thinIconStyle} onClick={() => toggleFullscreen()} />
-            </TooltipCompact>
-            <TooltipCompact tooltipChildren={'Save'}>
-              <Save className={buttonIconClasses} style={thinIconStyle} onClick={save} />
+              <Fullscreen className={buttonIconClasses} style={thinIconStyle} onClick={toggleFullscreen} />
             </TooltipCompact>
           </div>
         </div>
@@ -104,7 +111,7 @@ export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, codeSet, save,
         {extension &&
           <CodeMirror
             value={code}
-            width={layout == 'horizontal' ? '50vw' : '100vw'}
+            width={codeMirrorWidth()}
             height={codeMirrorHeight()}
             theme={theme == 'dark' ? tokyoNight : vscodeLight}
             extensions={extension}

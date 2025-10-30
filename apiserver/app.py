@@ -184,6 +184,8 @@ async def create_project_file(name: str, filename: str, request: Request):
         data = await request.json()
         if data.get("content"):
             project_file_path.write_text(data["content"])
+        else:
+            project_file_path.write_text(' ')
         return {"detail": f"created {name}/{filename}"}
 
 
@@ -194,6 +196,8 @@ async def update_project_file_content(name: str, filename: str, request: Request
         data = await request.json()
         if data.get("content"):
             project_file_path.write_text(data["content"])
+        else:
+            project_file_path.write_text(' ')
         return {"detail": f"updated {name}/{filename}"}
     else:
         raise HTTPException(404, f"Project {name}/{filename} not found")
@@ -246,22 +250,19 @@ async def get_project_composite(name: str):
     for k in source.keys():
         source[k] = project_path / f"code.{k}"
 
+    html_code = Path(source['html']).read_text()
+    css_code = Path(source['css']).read_text()
+    js_code = Path(source['js']).read_text()
+
     return HTMLResponse(
         f"""
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <style>
-                    {Path(source['css']).read_text()}
-                </style>
-                <script>
-                    {Path(source['js']).read_text()}
-                </script>
-            </head>
-            <body>
-                {Path(source['html']).read_text()}
-            </body>
-        </html>
+        {html_code}
+        <style>
+            {css_code}
+        </style>
+        <script>
+            {js_code}
+        </script>
         """
     )
 

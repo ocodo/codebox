@@ -1,8 +1,9 @@
-import { type FC } from 'react';
-import { thinIconStyle } from '@/lib/styles';
+import type { FC } from 'react';
+import { darkTitleTextForeground, lightTitleTextForeground, thinIconStyle } from '@/lib/styles';
 import { useProjectContext } from '@/contexts/project-context';
 import { CodeBoxIcon } from '@/components/codebox-icon';
 import { ProjectToolbar } from '@/components/project.-toolbar';
+import { useTheme } from '@/contexts/theme-context';
 
 interface HeadingProps {
   title: string
@@ -10,11 +11,12 @@ interface HeadingProps {
 
 export const Heading: FC<HeadingProps> = ({ title }) => {
 
+  const { theme } = useTheme()
   const { projectName } = useProjectContext()
 
   return (
     <div className="flex items-center justify-between p-4 border-b">
-      <div className='flex flex-row gap-2'>
+      <div className='flex flex-row gap-2' style={theme == 'dark' ? darkTitleTextForeground : lightTitleTextForeground}>
         <CodeBoxIcon className='w-10 h-10' style={thinIconStyle} />
         <div className="font-black tracking-tighter text-4xl">{title}</div>
       </div>
