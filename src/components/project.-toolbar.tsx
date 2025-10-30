@@ -44,7 +44,6 @@ export const ProjectToolbar: FC = () => {
             }
           </div>
         </TooltipCompact>
-
       }
       {
         projectName &&

@@ -3,7 +3,7 @@ import type { Dispatch, FC, SetStateAction } from "react";
 import CodeMirror from '@uiw/react-codemirror';
 import { vscodeLight } from '@uiw/codemirror-themes-all';
 import { tokyoNight } from '@uiw/codemirror-themes-all';
-import { Focus, Fullscreen, Save } from "lucide-react";
+import { Columns3, Focus, Fullscreen, Rows3, Save } from "lucide-react";
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
 import { ThemeContext } from "@/contexts/theme-context";
 import { TooltipCompact } from "@/components/tooltip-compact";
@@ -80,8 +80,16 @@ export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, codeSet, save,
             </TooltipCompact>
           </div>
           <div className="flex flex-row gap-2 items-center justify-end">
-            <TooltipCompact tooltipChildren={'Focus'}>
-              <Focus className={buttonIconClasses} style={thinIconStyle} onClick={() => focusCard()} />
+            <TooltipCompact tooltipChildren={focused == title ? 'Show All' : 'Hide Others'}>
+              <div onClick={() => focusCard()}>
+                {
+                  focused == title
+                    ? horizontal()
+                      ? <Rows3 className={buttonIconClasses} style={thinIconStyle} />
+                      : <Columns3 className={buttonIconClasses} style={thinIconStyle} />
+                    : <Focus className={buttonIconClasses} style={thinIconStyle} />
+                }
+              </div>
             </TooltipCompact>
             <TooltipCompact tooltipChildren={'Full Screen'}>
               <Fullscreen className={buttonIconClasses} style={thinIconStyle} onClick={() => toggleFullscreen()} />
