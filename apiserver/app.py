@@ -1,5 +1,5 @@
 from pathlib import Path
-from fastapi import FastAPI, Request, APIRouter, HTTPException, Query
+from fastapi import FastAPI, Request, APIRouter, HTTPException, Query, UploadFile, File
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic.dataclasses import dataclass
@@ -94,13 +94,15 @@ async def get_project_file(
     content: Optional[str] = Query(
         None,
         regex="^(js|html|text|css)$",
-        description="Specify content type to ensure correct MIME type: js | html | text | css"
-    )
+        description="Specify content type to ensure correct MIME type: js | html | text | css",
+    ),
 ):
     file_path = Path(config.project_root, name, filename)
 
     if not file_path.exists():
-        raise HTTPException(status_code=404, detail=f"File not found: {name}/{filename}")
+        raise HTTPException(
+            status_code=404, detail=f"File not found: {name}/{filename}"
+        )
 
     media_type = None
     if content:
@@ -195,6 +197,36 @@ async def update_project_file_content(name: str, filename: str, request: Request
         return {"detail": f"updated {name}/{filename}"}
     else:
         raise HTTPException(404, f"Project {name}/{filename} not found")
+
+
+@api.get("/image/project/{name}")
+async def get_project_image(name: str):
+    image_filename = "code.png"
+    image_path = Path(config.project_root, name, image_filename)
+
+    if not image_path.exists():
+        raise HTTPException(status_code=404, detail="Image not found")
+
+    return FileResponse(
+        path=image_path, media_type="image/png", filename=image_filename
+    )
+
+
+@api.post("/image/project/{name}")
+async def upload_project_image(name: str, image: UploadFile = File(...)):
+    if image.content_type != "image/png":
+        raise HTTPException(status_code=400, detail="Only PNG images are supported")
+
+    image_data = await image.read()
+
+    image_filename = "code.png"
+    image_path = Path(config.project_root, name, image_filename)
+    image_path.parent.mkdir(parents=True, exist_ok=True)
+    image_path.write_bytes(image_data)
+
+    return {
+        "detail": f"Snapshot image saved for project {name} ({len(image_data)/1024}kb)",
+    }
 
 
 @api.get("/composite/project/{name}")

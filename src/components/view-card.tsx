@@ -42,8 +42,9 @@ export const ViewCard: FC = () => {
           }}
         />
         <iframe
+          id="iframe-view"
           ref={iframeRef}
-          className='w-full h-[48vh]'
+          className='w-full h-[44vh]'
           src={iframeUrl()}></iframe>
       </div>
     )

@@ -1,7 +1,6 @@
-import { useCallback, useContext, useEffect, useRef, useState, type Dispatch, type FC, type SetStateAction } from "react"
-
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import type { Dispatch, FC, SetStateAction } from "react";
 import CodeMirror from '@uiw/react-codemirror';
-
 import { vscodeLight } from '@uiw/codemirror-themes-all';
 import { tokyoNight } from '@uiw/codemirror-themes-all';
 import { Focus, Fullscreen, Save } from "lucide-react";
@@ -10,25 +9,24 @@ import { ThemeContext } from "@/contexts/theme-context";
 import { TooltipCompact } from "@/components/tooltip-compact";
 import { useProjectContext } from "@/contexts/project-context";
 
-interface CodeCardProps {
+export interface CodeCardProps {
   title: string;
   code: string;
-  setCode: Dispatch<SetStateAction<string>>;
+  codeSet: Dispatch<SetStateAction<string>>;
   mtime: number;
   save: () => void;
   extension: any[]
 }
 
-export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, setCode, save, extension }) => {
+export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, codeSet, save, extension }) => {
 
   const { theme } = useContext(ThemeContext)
   const { focused, setFocused } = useProjectContext()
 
   const onChange = useCallback((val: string) => {
     console.log('val:', val);
-    setCode(val);
+    codeSet(val);
   }, []);
-
 
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -61,7 +59,7 @@ export const CodeCard: FC<CodeCardProps> = ({ title, code, mtime, setCode, save,
     }
   };
 
-  const cardRef = useRef<HTMLIFrameElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <div ref={cardRef} className="h-full">

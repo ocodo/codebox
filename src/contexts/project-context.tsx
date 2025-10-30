@@ -2,9 +2,15 @@ import type { FC, ReactNode } from "react";
 import { useContext, useState } from "react";
 import { createContext, type Dispatch, type SetStateAction } from "react";
 import { toast } from "sonner";
+import { javascript } from '@codemirror/lang-javascript';
+import { html } from '@codemirror/lang-html';
+import { css } from '@codemirror/lang-css';
+import html2canvas from 'html2canvas';
+import type { CodeCardProps } from "@/components/code-card";
 
 export interface ProjectContextType {
   projectName: string | undefined
+  projectCode: ProjectCodeType[]
   setProjectName: Dispatch<SetStateAction<string | undefined>>;
   updateProjectFile: (name: string, code: string) => Promise<void>;
   fetchProjectFiles: (name: string) => Promise<void>;
@@ -29,6 +35,8 @@ export interface ProjectContextType {
   setUpdating: Dispatch<SetStateAction<boolean>>;
   renameCurrentProject: (newName: string) => Promise<void>
   deleteCurrentProject: () => Promise<void>
+  snapshotView: () => Promise<void>
+  codeCards: CodeCardProps[]
 }
 
 export const ProjectContext = createContext<ProjectContextType>({} as ProjectContextType);
@@ -47,6 +55,7 @@ interface ProjectFile {
 }
 
 interface ProjectCodeType {
+  title: string;
   code: string;
   codeSet: Dispatch<SetStateAction<string>>;
   mtime: number;
@@ -68,6 +77,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const projectCode: ProjectCodeType[] = [
     {
+      title: 'CSS',
       mtime: cssMtime,
       mtimeSet: setCssMtime,
       code: cssCode,
@@ -75,6 +85,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       filename: 'code.css'
     },
     {
+      title: 'HTML',
       mtime: htmlMtime,
       mtimeSet: setHtmlMtime,
       code: htmlCode,
@@ -82,6 +93,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       filename: 'code.html'
     },
     {
+      title: 'JS',
       mtime: jsMtime,
       mtimeSet: setJsMtime,
       code: jsCode,
@@ -90,10 +102,96 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     },
   ]
 
+  const projectCodeLookup = projectCode.reduce((acc, current) => {
+    acc[current.title] = current;
+    return acc;
+  }, {} as Record<string, ProjectCodeType>);
+
+  const codeCards: CodeCardProps[] = [
+    {
+      title: 'CSS',
+      save: () => updateProjectFile('code.css', cssCode),
+      extension: [css()]
+    },
+    {
+      title: 'HTML',
+      save: () => updateProjectFile('code.html', htmlCode),
+      extension: [html()]
+    },
+    {
+      title: 'JS',
+      save: () => updateProjectFile('code.js', jsCode),
+      extension: [javascript({ jsx: true })]
+    },
+  ].map(card => {
+    const code = projectCodeLookup[card.title];
+
+    if (!code) {
+      throw new Error(`System Fault: Required code block for title '${card.title}' not found in projectCode source.`);
+    }
+
+    const { mtimeSet, ...restOfCodeProps } = code;
+    return { ...card, ...restOfCodeProps } as CodeCardProps;
+  });
+
+  const snapshotView = async () => {
+    const iframe = document.getElementById('iframe-view') as HTMLIFrameElement;
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+
+    if (!iframeDoc) {
+      toast.error('Cannot access iframe document');
+      return;
+    }
+
+    // Get the first stylesheet, code.css must be the first one in the composite template
+    const styleSheet = iframeDoc.styleSheets[0];
+
+    const rules = Array.from(styleSheet.cssRules || styleSheet.rules);
+    const bodyRule : CSSStyleRule | null = rules.find(rule => (rule as CSSStyleRule).selectorText === "body") as CSSStyleRule;
+    const bgColor = bodyRule?.style.background;
+
+    console.log(`BG color = ${bgColor}`);
+
+    try {
+      const canvas = await html2canvas(iframeDoc.body, {
+        useCORS: true,
+        scale: 1,
+        logging: false,
+        height: 720,
+        width: 1280,
+        backgroundColor: bgColor
+      });
+
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((blob: Blob | null) => {
+          blob ? resolve(blob) : reject();
+        }, 'image/png');
+      });
+
+      const formData = new FormData();
+      formData.append('image', blob, 'code.png');
+
+      const response = await fetch(`api/image/project/${projectName}`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        toast.error('Upload failed');
+        return;
+      } else {
+        toast.success(`Uploaded snapshot`)
+      }
+
+    } catch (error) {
+      toast.error('Snapshot failed');
+    }
+  };
+
   const [projectList, setProjectList] = useState<string[]>([])
 
   const fetchProjects = async () => {
-    const response = await fetch(`/api/projects`)
+    const response = await fetch(`api/projects`)
     if (response.ok) {
       const data = await response.json()
       setProjectList(data)
@@ -139,12 +237,12 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const renameCurrentProject = async (newName: string): Promise<void> => {
     if (projectName) {
-      const response = await fetch(`api/project/${projectName}`,{
+      const response = await fetch(`api/project/${projectName}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({newName})
+        body: JSON.stringify({ newName })
       })
       if (response.ok) {
         toast(`Renamed ${projectName} to ${newName}`)
@@ -183,7 +281,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       projectCode
         .filter((code) => data.find((projectFile) => projectFile.filename == code.filename))
         .forEach(async (code) => {
-          const response = await fetch(`/api/project/${name}/${code.filename}`);
+          const response = await fetch(`api/project/${name}/${code.filename}`);
           if (response.ok) {
             const content = await response.text();
             if (content) {
@@ -202,6 +300,8 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <ProjectContext.Provider value={{
       projectName,
+      projectCode,
+      codeCards,
       setProjectName,
       fetchProjectFiles,
       updateProjectFile,
@@ -226,6 +326,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       setUpdating,
       renameCurrentProject,
       deleteCurrentProject,
+      snapshotView,
     }}>
       {children}
     </ProjectContext.Provider>

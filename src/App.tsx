@@ -1,10 +1,12 @@
 import { CodeBox } from '@/components/codebox-main';
 import { Heading } from '@/components/heading';
 import { ProjectSelector } from '@/components/project-selector';
+import { SettingsModal } from '@/components/settings-modal';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { LayoutProvider } from '@/contexts/layout-context';
 import { ProjectProvider, useProjectContext } from '@/contexts/project-context';
+import { SettingsProvider } from '@/contexts/settings-context';
 import { ThemeProvider } from '@/contexts/theme-provider';
 
 import { useEffect, type FC } from 'react';
@@ -33,12 +35,15 @@ export const App: FC = () => {
   return (
     <ThemeProvider>
       <TooltipProvider>
-        <LayoutProvider>
-          <ProjectProvider>
-            <Main />
-            <Toaster />
-          </ProjectProvider>
-        </LayoutProvider>
+        <SettingsProvider>
+          <LayoutProvider>
+            <ProjectProvider>
+              <Main />
+              <SettingsModal />
+              <Toaster />
+            </ProjectProvider>
+          </LayoutProvider>
+        </SettingsProvider>
       </TooltipProvider>
     </ThemeProvider>
   )

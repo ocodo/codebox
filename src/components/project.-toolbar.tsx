@@ -4,8 +4,9 @@ import { NameInput } from "@/components/name-input"
 import { ThemeSwitch } from "@/components/theme-switch"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { useProjectContext } from "@/contexts/project-context"
+import { useSettings } from "@/contexts/settings-context"
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles"
-import { CircleX, Edit, Settings, Trash2 } from "lucide-react"
+import { Camera, CircleX, Edit, Save, Settings, Trash2 } from "lucide-react"
 import type { FC } from "react"
 import { toast } from "sonner"
 
@@ -14,16 +15,56 @@ export const ProjectToolbar: FC = () => {
     setProjectName,
     projectName,
     renameCurrentProject,
-    deleteCurrentProject
+    deleteCurrentProject,
+    htmlCode,
+    jsCode,
+    cssCode,
+    updateProjectFile,
+    snapshotView,
   } = useProjectContext()
+
+  const { setOpen } = useSettings()
 
   return (
     <div className='flex flex-row gap-2 items-center'>
       {
         projectName &&
+        <LongPressTooltipButton
+          duration={200}
+          title={`Save ${projectName} code`}
+          onLongPress={() => {
+            [
+              ['code.css', cssCode],
+              ['code.js', jsCode],
+              ['code.html', htmlCode],
+            ].forEach(([name, entry]) => {
+              updateProjectFile(name, entry);
+            });
+          }}
+          icon={
+            <Save
+              style={thinIconStyle}
+            />
+          }
+        />
+      }
+      {
+        projectName &&
+        <>
+          <TooltipCompact tooltipChildren={`Save Snapshot`}>
+            <Camera
+              onClick={() => snapshotView()}
+              className={buttonIconClasses}
+              style={thinIconStyle} />
+          </TooltipCompact>
+        </>
+      }
+      {
+        projectName &&
         <>
           <TooltipCompact tooltipChildren={`Project settings`}>
             <Settings
+              onClick={() => setOpen(true)}
               className={buttonIconClasses}
               style={thinIconStyle} />
           </TooltipCompact>
