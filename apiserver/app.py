@@ -6,7 +6,7 @@ from pydantic.dataclasses import dataclass
 from omegaconf import OmegaConf
 from omegaconf.errors import OmegaConfBaseException
 from typing import Optional
-from git import Repo, Actor
+from git import Repo, Actor, Git
 import shutil
 import sys
 import logging
@@ -113,6 +113,17 @@ async def get_projects():
         return [project.name for project in project_root_path.glob("/".join(["*"] * 1))]
     else:
         raise HTTPException(404)
+
+
+@api.get("/history/{name}")
+async def get_history(name: str):
+    project_path = Path(config.project_root, name)
+    if project_path.exists():
+        g = Git(project_path)
+        log = [entry.split(" ") for entry in g.log("--format=%H %ct").splitlines()]
+        return log
+    else:
+        HTTPException(404, f"{name} not found")
 
 
 @api.get("/project/{name}/{filename}")
@@ -226,7 +237,7 @@ async def create_project_file(name: str, filename: str, request: Request):
         if data.get("content"):
             project_file_path.write_text(data["content"])
         else:
-            project_file_path.write_text('')
+            project_file_path.write_text("")
 
         repo = Repo(project_root)
         repo.index.add(filename)
@@ -266,7 +277,7 @@ async def update_project_file_content(name: str, filename: str, request: Request
         if data.get("content"):
             project_file_path.write_text(data["content"])
         else:
-            project_file_path.write_text('')
+            project_file_path.write_text("")
 
         return {
             "detail": f"updated {name}/{filename} (use api/commit/project/{name} to commit changes.)"
@@ -281,7 +292,10 @@ async def get_project_image(name: str):
     image_path = Path(config.project_root, name, image_filename)
 
     if not image_path.exists():
-        raise HTTPException(status_code=404, detail="Image not found")
+        return FileResponse(
+            path='placeholder.png', media_type="image/png", filename='placeholder.png'
+        )
+
 
     return FileResponse(
         path=image_path, media_type="image/png", filename=image_filename

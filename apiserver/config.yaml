@@ -1,15 +1,13 @@
 project_root: /mnt/Mira/codebox
 template:
-  js: |
-    // JS
-  css: |
-    /* CSS */
-  html: |
-    <div>Hello World</div>
+  js: ""
+  css: ""
+  html: ""
 
 code_processors:
   - target: js
-    name: babel
+    name: tsx
+
   - target: css
     name: scss
 

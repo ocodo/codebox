@@ -5,8 +5,8 @@ import { ThemeSwitch } from "@/components/theme-switch"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { useProjectContext } from "@/contexts/project-context"
 import { useSettingsModal } from "@/contexts/settings-context"
-import { buttonIconClasses, thinIconStyle } from "@/lib/styles"
-import { Camera, CircleX, Columns3, Edit, Rows3, Save, Settings, Trash2 } from "lucide-react"
+import { buttonIconClasses, strokeIconStyle, thinIconStyle } from "@/lib/styles"
+import { Camera, CircleX, Columns3, Edit, Rows3, Save, Settings, Trash2, Zap, ZapOff } from "lucide-react"
 import type { FC } from "react"
 import { toast } from "sonner"
 
@@ -23,6 +23,8 @@ export const ProjectToolbar: FC = () => {
     snapshotView,
     toggleLayout,
     layout,
+    liveUpdating,
+    setLiveUpdating,
     commitProjectChanges,
   } = useProjectContext()
 
@@ -45,6 +47,27 @@ export const ProjectToolbar: FC = () => {
             }
           </div>
         </TooltipCompact>
+      }
+      {
+        projectName &&
+        <LongPressTooltipButton
+          duration={200}
+          title={`Live Updating is ${liveUpdating ? 'on' : 'off'}`}
+          onLongPress={() => {
+            setLiveUpdating(!liveUpdating)
+          }}
+          icon={
+            liveUpdating
+              ? <Zap
+                className={buttonIconClasses}
+                style={strokeIconStyle}
+              />
+              : <ZapOff
+                className={buttonIconClasses}
+                style={thinIconStyle}
+              />
+          }
+        />
       }
       {
         projectName &&

@@ -21,16 +21,28 @@ export interface CodeCardProps {
 }
 
 export const CodeCard: FC<CodeCardProps> = ({ icon, title, code, mtime, codeSet, extension }) => {
-
   const { theme } = useContext(ThemeContext)
-  const { focused, setFocused, vertical, isFocused, horizontal, codeProcessors, updateProjectFile } = useProjectContext()
+  const {
+    focused,
+    setFocused,
+    vertical,
+    horizontal,
+    isFocused,
+    updateProjectFile,
+    liveUpdating,
+    codeProcessors
+  } = useProjectContext()
+
   const { setOpen, setTab } = useSettingsModal()
 
   const activeCodeProcessors = codeProcessors.filter((processor) => processor.target == title)
+
   const onChange = useCallback((val: string) => {
     codeSet(val);
-    const silent = true
-    updateProjectFile(`code.${title}`, val, silent)
+    if (liveUpdating) {
+      const silent = true
+      updateProjectFile(`code.${title}`, val, silent)
+    }
   }, []);
 
   const [isFullscreen, setIsFullscreen] = useState(false);

@@ -58,6 +58,9 @@ export interface ProjectContextType {
   codeProcessors: CodeProcessor[];
   fetchCodeProcessors: () => Promise<void>;
   commitProjectChanges: () => Promise<void>;
+  liveUpdating: boolean;
+  setLiveUpdating: Dispatch<SetStateAction<boolean>>;
+
 }
 
 export const ProjectContext = createContext<ProjectContextType>({} as ProjectContextType);
@@ -95,6 +98,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [jsMtime, setJsMtime] = useState<number>(0)
   const [cssMtime, setCssMtime] = useState<number>(0)
   const [updating, setUpdating] = useState<boolean>(false)
+  const [liveUpdating, setLiveUpdating] = useLocalStorage<boolean>('liveUpdatingEnabled', false)
   const [focused, setFocused] = useState<string>('')
 
   const toggleLayout = () => setLayout(layout == 'vertical' ? 'horizontal' : 'vertical')
@@ -383,8 +387,10 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       projectList,
       focused,
       setFocused,
-      updating,
-      setUpdating,
+      liveUpdating,
+      setLiveUpdating,
+      updating, // - to signal an update is taking place
+      setUpdating, // - " -
       renameCurrentProject,
       deleteCurrentProject,
       snapshotView,
