@@ -197,8 +197,7 @@ async def create_project(name: str):
     else:
         try:
             project_path.mkdir()
-            repo = Repo()
-            repo.init(project_path)
+            repo = Repo.init(project_path)
 
             for k in config.template.keys():
                 Path(project_path, f"code.{k}").write_text(config.template[k])
@@ -227,7 +226,7 @@ async def create_project_file(name: str, filename: str, request: Request):
         if data.get("content"):
             project_file_path.write_text(data["content"])
         else:
-            project_file_path.write_text()
+            project_file_path.write_text('')
 
         repo = Repo(project_root)
         repo.index.add(filename)
@@ -267,7 +266,7 @@ async def update_project_file_content(name: str, filename: str, request: Request
         if data.get("content"):
             project_file_path.write_text(data["content"])
         else:
-            project_file_path.write_text()
+            project_file_path.write_text('')
 
         return {
             "detail": f"updated {name}/{filename} (use api/commit/project/{name} to commit changes.)"
