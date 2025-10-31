@@ -4,7 +4,7 @@ import { NameInput } from "@/components/name-input"
 import { ThemeSwitch } from "@/components/theme-switch"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { useProjectContext } from "@/contexts/project-context"
-import { useSettings } from "@/contexts/settings-context"
+import { useSettingsModal } from "@/contexts/settings-context"
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles"
 import { Camera, CircleX, Columns3, Edit, Rows3, Save, Settings, Trash2 } from "lucide-react"
 import type { FC } from "react"
@@ -23,12 +23,13 @@ export const ProjectToolbar: FC = () => {
     snapshotView,
     toggleLayout,
     layout,
+    commitProjectChanges,
   } = useProjectContext()
 
-  const { setOpen } = useSettings()
+  const { setOpen } = useSettingsModal()
 
   return (
-    <div className='flex flex-row gap-2 items-center'>
+    <div className='flex flex-wrap gap-2 items-center'>
       {
         projectName &&
         <TooltipCompact tooltipChildren={`Set layout to ${layout == 'horizontal' ? 'vertical' : 'horizontal'}`}>
@@ -58,6 +59,7 @@ export const ProjectToolbar: FC = () => {
             ].forEach(([name, entry]) => {
               updateProjectFile(name, entry);
             });
+            commitProjectChanges()
           }}
           icon={
             <Save

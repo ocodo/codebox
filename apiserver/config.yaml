@@ -6,3 +6,14 @@ template:
     /* CSS */
   html: |
     <div>Hello World</div>
+
+code_processors:
+  - target: js
+    name: babel
+  - target: css
+    name: scss
+
+git:
+  author:
+    name: CodeBox
+    email: automated@codebox.hub

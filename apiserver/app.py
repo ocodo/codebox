@@ -6,6 +6,7 @@ from pydantic.dataclasses import dataclass
 from omegaconf import OmegaConf
 from omegaconf.errors import OmegaConfBaseException
 from typing import Optional
+from git import Repo, Actor
 import shutil
 import sys
 import logging
@@ -25,6 +26,8 @@ except OmegaConfBaseException as e:
     print(f"CONFIG INVALID: {e}")
     sys.exit(1)
 
+git_author = Actor(name=config.git.author.name, email=config.git.author.email)
+
 app = FastAPI(
     title="codebox",
     version="0.1.0",
@@ -39,6 +42,31 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+
+def git_show(commit):
+    """Return dict that mimics 'git show <sha>'."""
+    parent = commit.parents[0] if commit.parents else None
+
+    # Collect diff
+    diffs = []
+    for d in commit.diff(parent):
+        diffs.append(
+            {
+                "file": d.a_path,
+                "change_type": d.change_type,
+                "diff": d.diff.decode(errors="ignore"),  # raw patch
+            }
+        )
+
+    return {
+        "sha": commit.hexsha,
+        "message": commit.message,
+        "author": {"name": commit.author.name, "email": commit.author.email},
+        "committer": {"name": commit.committer.name, "email": commit.committer.email},
+        "date": commit.committed_datetime.isoformat(),
+        "diffs": diffs,
+    }
 
 
 @api.get("/health", tags=["api"])
@@ -163,21 +191,35 @@ async def delete_project(name: str):
 @api.post("/project/{name}")
 async def create_project(name: str):
     project_path = Path(config.project_root, name)
+
     if project_path.exists():
         raise HTTPException(409, f"Project {name} already exists")
     else:
         try:
             project_path.mkdir()
-            Path(project_path, "code.js").write_text(config.template.js)
-            Path(project_path, "code.html").write_text(config.template.html)
-            Path(project_path, "code.css").write_text(config.template.css)
+            repo = Repo()
+            repo.init(project_path)
+
+            for k in config.template.keys():
+                Path(project_path, f"code.{k}").write_text(config.template[k])
+
+            repo.index.add("*")
+            commit = repo.index.commit(
+                f"init {name}",
+                author=git_author,
+                committer=git_author,
+            )
+
+            return {"detail": f"created f{name}", "commit": git_show(commit)}
+
         except Exception as e:
             raise HTTPException(500, f"Error creating project {name}\n\n{e}")
 
 
 @api.post("/project/{name}/{filename}")
 async def create_project_file(name: str, filename: str, request: Request):
-    project_file_path = Path(config.project_root, name, filename)
+    project_root = Path(config.project_root, name)
+    project_file_path = project_root / filename
     if project_file_path.exists():
         raise HTTPException(409, f"Project {name}/{filename} already exists")
     else:
@@ -185,20 +227,51 @@ async def create_project_file(name: str, filename: str, request: Request):
         if data.get("content"):
             project_file_path.write_text(data["content"])
         else:
-            project_file_path.write_text(' ')
-        return {"detail": f"created {name}/{filename}"}
+            project_file_path.write_text()
+
+        repo = Repo(project_root)
+        repo.index.add(filename)
+        commit = repo.index.commit(
+            f"Added {filename}",
+            author=git_author,
+            committer=git_author,
+        )
+
+        return {"detail": f"created {name}/{filename}", "commit": git_show(commit)}
+
+
+@api.get("/commit/project/{name}")
+def git_commit_project(name: str):
+    project_root = Path(config.project_root, name)
+    try:
+        repo = Repo(project_root)
+        repo.index.add("*")
+
+        commit = repo.index.commit(
+            f"Updated {name}",
+            author=git_author,
+            committer=git_author,
+        )
+
+        return {"detail": "success", "commit": git_show(commit)}
+    except Exception as e:
+        HTTPException(500, f"{e}")
 
 
 @api.put("/project/{name}/{filename}")
 async def update_project_file_content(name: str, filename: str, request: Request):
-    project_file_path = Path(config.project_root, name, filename)
+    project_root = Path(config.project_root, name)
+    project_file_path = project_root / filename
     if project_file_path.exists():
         data = await request.json()
         if data.get("content"):
             project_file_path.write_text(data["content"])
         else:
-            project_file_path.write_text(' ')
-        return {"detail": f"updated {name}/{filename}"}
+            project_file_path.write_text()
+
+        return {
+            "detail": f"updated {name}/{filename} (use api/commit/project/{name} to commit changes.)"
+        }
     else:
         raise HTTPException(404, f"Project {name}/{filename} not found")
 
@@ -224,20 +297,31 @@ async def upload_project_image(name: str, image: UploadFile = File(...)):
     image_data = await image.read()
 
     image_filename = "code.png"
-    image_path = Path(config.project_root, name, image_filename)
+    project_root = Path(config.project_root)
+    image_path = project_root / name / image_filename
     image_path.parent.mkdir(parents=True, exist_ok=True)
     image_path.write_bytes(image_data)
 
+    repo = Repo(Path(config.project_root, name))
+    repo.index.add("*")
+    commit = repo.index.commit("Added/Updated snapshot image for {name}")
+
     return {
         "detail": f"Snapshot image saved for project {name} ({len(image_data)/1024}kb)",
+        "commit": git_show(commit),
     }
+
+
+@api.get("/code_processors")
+def get_code_processors():
+    return OmegaConf.to_container(config.code_processors, resolve=True)
 
 
 @api.get("/composite/project/{name}")
 async def get_project_composite(name: str):
     project_path = Path(config.project_root, name)
 
-    # project settings from codebox.yaml...
+    # project settings from config.yaml...
     # css:
     #   preprocessor: ?
     # html:
@@ -250,9 +334,9 @@ async def get_project_composite(name: str):
     for k in source.keys():
         source[k] = project_path / f"code.{k}"
 
-    html_code = Path(source['html']).read_text()
-    css_code = Path(source['css']).read_text()
-    js_code = Path(source['js']).read_text()
+    html_code = Path(source["html"]).read_text()
+    css_code = Path(source["css"]).read_text()
+    js_code = Path(source["js"]).read_text()
 
     return HTMLResponse(
         f"""

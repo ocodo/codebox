@@ -3,7 +3,7 @@ import { useProjectContext } from "@/contexts/project-context"
 
 import type { FC } from "react"
 
-export const CodeColumsLayout: FC = () => {
+export const CodeLayout: FC = () => {
   const {
     focused,
     codeCards,

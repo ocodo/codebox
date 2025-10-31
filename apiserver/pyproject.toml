@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.120.1",
+    "gitpython>=3.1.45",
     "omegaconf>=2.3.0",
     "python-slugify>=8.0.4",
     "ruamel-yaml>=0.18.16",

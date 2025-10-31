@@ -5,7 +5,7 @@ import { SettingsModal } from '@/components/settings-modal';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ProjectProvider, useProjectContext } from '@/contexts/project-context';
-import { SettingsProvider } from '@/contexts/settings-context';
+import { SettingsModalProvider } from '@/contexts/settings-context';
 import { ThemeProvider } from '@/contexts/theme-provider';
 
 import { useEffect, type FC } from 'react';
@@ -34,13 +34,13 @@ export const App: FC = () => {
   return (
     <ThemeProvider>
       <TooltipProvider>
-        <SettingsProvider>
+        <SettingsModalProvider>
           <ProjectProvider>
             <Main />
             <SettingsModal />
             <Toaster />
           </ProjectProvider>
-        </SettingsProvider>
+        </SettingsModalProvider>
       </TooltipProvider>
     </ThemeProvider>
   )

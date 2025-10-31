@@ -5,12 +5,12 @@ import path from 'path'
 
 export default defineConfig({
   base: './',
-  
+
   build: {
     outDir: './apiserver/dist',
-    chunkSizeWarningLimit: 1100,
+    chunkSizeWarningLimit: 2000,
   },
-    
+
   server: {
     proxy: {
       "/api": {
@@ -21,13 +21,13 @@ export default defineConfig({
     },
     allowedHosts: []
   },
-  
+
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src/'),
     },
   },
-  
+
   plugins: [
     react(),
     tailwindcss()

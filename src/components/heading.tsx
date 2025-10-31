@@ -15,7 +15,7 @@ export const Heading: FC<HeadingProps> = ({ title }) => {
   const { projectName } = useProjectContext()
 
   return (
-    <div className="flex items-center justify-between p-4 border-b">
+    <div className="flex flex-wrap items-center justify-between p-4 border-b">
       <div className='flex flex-row gap-2' style={theme == 'dark' ? darkTitleTextForeground : lightTitleTextForeground}>
         <CodeBoxIcon className='w-10 h-10' style={thinIconStyle} />
         <div className="font-black tracking-tighter text-4xl">{title}</div>
@@ -25,7 +25,7 @@ export const Heading: FC<HeadingProps> = ({ title }) => {
           projectName && <div className="font-base text-xl">{projectName}</div>
         }
       </div>
-      <div className='flex flex-row gap-2'>
+      <div className='flex flex-wrap gap-2'>
         {projectName != '' &&
           <ProjectToolbar />
         }

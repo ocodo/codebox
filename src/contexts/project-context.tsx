@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from "react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { createContext, type Dispatch, type SetStateAction } from "react";
 import { toast } from "sonner";
 import { javascript } from '@codemirror/lang-javascript';
@@ -12,13 +12,19 @@ import { JSIcon } from "@/components/js-icon";
 import { CSSIcon } from "@/components/css-icon";
 import { HTMLIcon } from "@/components/html-icon";
 
-type Layout = 'vertical' | 'horizontal';
+export type Layout = 'vertical' | 'horizontal';
+
+export type WebLanguage = 'js' | 'html' | 'css'
+
+export interface CodeProcessor {
+  target: WebLanguage
+}
 
 export interface ProjectContextType {
   projectName: string | undefined
   projectCode: ProjectCodeType[]
   setProjectName: Dispatch<SetStateAction<string | undefined>>;
-  updateProjectFile: (name: string, code: string) => Promise<void>;
+  updateProjectFile: (name: string, code: string, silent?: boolean) => Promise<void>;
   fetchProjectFiles: (name: string) => Promise<void>;
   createProject: (name: string) => Promise<void>
   htmlCode: string;
@@ -49,6 +55,9 @@ export interface ProjectContextType {
   horizontal: () => boolean;
   vertical: () => boolean;
   isFocused: (title: string) => boolean;
+  codeProcessors: CodeProcessor[];
+  fetchCodeProcessors: () => Promise<void>;
+  commitProjectChanges: () => Promise<void>;
 }
 
 export const ProjectContext = createContext<ProjectContextType>({} as ProjectContextType);
@@ -98,7 +107,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const projectCode: ProjectCodeType[] = [
     {
-      title: 'HTML',
+      title: 'html',
       mtime: htmlMtime,
       mtimeSet: setHtmlMtime,
       code: htmlCode,
@@ -107,7 +116,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       icon: <HTMLIcon className="w-5 h-5" />
     },
     {
-      title: 'CSS',
+      title: 'css',
       mtime: cssMtime,
       mtimeSet: setCssMtime,
       code: cssCode,
@@ -116,7 +125,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       icon: <CSSIcon className="w-5 h-5" />
     },
     {
-      title: 'JS',
+      title: 'js',
       mtime: jsMtime,
       mtimeSet: setJsMtime,
       code: jsCode,
@@ -126,6 +135,20 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     },
   ]
 
+  const [codeProcessors, setCodeProcessors] = useState<CodeProcessor[]>([])
+
+  const fetchCodeProcessors = async () => {
+    const response = await fetch(`api/code_processors`)
+    if (response.ok) {
+      const data = await response.json()
+      setCodeProcessors(data)
+    }
+  }
+
+  useEffect(() => {
+    fetchCodeProcessors()
+  }, [])
+
   const projectCodeLookup = projectCode.reduce((acc, current) => {
     acc[current.title] = current;
     return acc;
@@ -133,17 +156,17 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const codeCards: CodeCardProps[] = [
     {
-      title: 'HTML',
+      title: 'html',
       save: () => updateProjectFile('code.html', htmlCode),
       extension: [html()]
     },
     {
-      title: 'CSS',
+      title: 'css',
       save: () => updateProjectFile('code.css', cssCode),
       extension: [css()]
     },
     {
-      title: 'JS',
+      title: 'js',
       save: () => updateProjectFile('code.js', jsCode),
       extension: [javascript({ jsx: true })]
     },
@@ -173,8 +196,6 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const rules = Array.from(styleSheet.cssRules || styleSheet.rules);
     const bodyRule: CSSStyleRule | null = rules.find(rule => (rule as CSSStyleRule).selectorText === "body") as CSSStyleRule;
     const bgColor = bodyRule?.style.background;
-
-    console.log(`BG color = ${bgColor}`);
 
     try {
       const canvas = await html2canvas(iframeDoc.body, {
@@ -222,7 +243,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }
 
-  const updateProjectFile = async (name: string, code: string): Promise<void> => {
+  const updateProjectFile = async (name: string, code: string, silent: boolean = false): Promise<void> => {
     const response = await fetch(`api/project/${projectName}/${name}`, {
       method: 'PUT',
       headers: {
@@ -231,10 +252,10 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       body: JSON.stringify({ 'content': code })
     });
     if (!response.ok) {
-      toast(`Error updating ${projectName}/${name}`);
+      if (!silent) toast(`Error updating ${projectName}/${name}`);
     } else {
       setUpdating(true)
-      toast(`Saved ${projectName}/${name}`);
+      if (!silent) toast(`Saved ${projectName}/${name}`);
     }
   }
 
@@ -321,6 +342,16 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }
 
+  const commitProjectChanges = async () => {
+    if (!projectName) return;
+    const response = await fetch(`api/commit/project/${projectName}`)
+    if (response.ok) {
+      toast.success(`Commited changes in ${projectName}`)
+    } else {
+      toast.error(`Failed to commit changes in ${projectName}`)
+    }
+  }
+
   return (
     <ProjectContext.Provider value={{
       projectName,
@@ -357,6 +388,9 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       renameCurrentProject,
       deleteCurrentProject,
       snapshotView,
+      codeProcessors,
+      fetchCodeProcessors,
+      commitProjectChanges,
     }}>
       {children}
     </ProjectContext.Provider>

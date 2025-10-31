@@ -3,11 +3,12 @@ import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
 import CodeMirror from '@uiw/react-codemirror';
 import { vscodeLight } from '@uiw/codemirror-themes-all';
 import { tokyoNight } from '@uiw/codemirror-themes-all';
-import { Fullscreen } from "lucide-react";
+import { Fullscreen, Settings2 } from "lucide-react";
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
 import { ThemeContext } from "@/contexts/theme-context";
 import { TooltipCompact } from "@/components/tooltip-compact";
-import { useProjectContext } from "@/contexts/project-context";
+import { useProjectContext, type WebLanguage } from "@/contexts/project-context";
+import { useSettingsModal } from '@/contexts/settings-context';
 
 export interface CodeCardProps {
   title: string;
@@ -22,11 +23,14 @@ export interface CodeCardProps {
 export const CodeCard: FC<CodeCardProps> = ({ icon, title, code, mtime, codeSet, extension }) => {
 
   const { theme } = useContext(ThemeContext)
-  const { focused, setFocused, vertical, isFocused, horizontal } = useProjectContext()
+  const { focused, setFocused, vertical, isFocused, horizontal, codeProcessors, updateProjectFile } = useProjectContext()
+  const { setOpen, setTab } = useSettingsModal()
 
+  const activeCodeProcessors = codeProcessors.filter((processor) => processor.target == title)
   const onChange = useCallback((val: string) => {
-    console.log('val:', val);
     codeSet(val);
+    const silent = true
+    updateProjectFile(`code.${title}`, val, silent)
   }, []);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -79,12 +83,13 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, code, mtime, codeSet,
     <div ref={cardRef} className="h-full">
       <div className='text-xs p-1'>
         <div className={`flex-row flex gap-2 items-center justify-between`} onDoubleClick={focusCard}>
+
           <TooltipCompact tooltipChildren={
             <>
               <div>
                 Last updated ${new Date(mtime * 1000).toLocaleString()}
               </div>
-              <div style={{fontSize: 'x-small'}}>
+              <div style={{ fontSize: 'x-small' }}>
                 Double Click to Expand/Restore
               </div>
             </>
@@ -95,11 +100,24 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, code, mtime, codeSet,
                   {icon}
                 </div>
                 <div>
-                  {title}
+                  {title.toUpperCase()}
                 </div>
+                {
+                  activeCodeProcessors.length > 0 && (
+                    <div onClick={() => {
+                      setOpen(() => {
+                        setTab(title as WebLanguage)
+                        return true
+                      })
+                    }}>
+                      <Settings2 className={buttonIconClasses} />
+                    </div>
+                  )
+                }
               </div>
             </div>
           </TooltipCompact>
+
           <div className="flex flex-row gap-2 items-center justify-end">
             <TooltipCompact tooltipChildren={'Full Screen'}>
               <Fullscreen className={buttonIconClasses} style={thinIconStyle} onClick={toggleFullscreen} />

@@ -1,7 +1,7 @@
 import { ViewCard } from "@/components/view-card";
 import { type FC, useEffect } from "react";
 import { useProjectContext } from "@/contexts/project-context";
-import { CodeColumsLayout } from "@/components/code-layout";
+import { CodeLayout } from "@/components/code-layout";
 
 export const CodeBox: FC = () => {
   const {
@@ -21,7 +21,7 @@ export const CodeBox: FC = () => {
 
   return (
     <div className={`h-fill grid ${layout == 'vertical' ? 'grid-cols-1' : 'grid-cols-2 gap-2'}`} >
-        <CodeColumsLayout />
+        <CodeLayout />
         <ViewCard />
     </div>
   )
