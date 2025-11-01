@@ -1,14 +1,14 @@
-import tailwindcss from '@tailwindcss/vite'
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig({
-  base: './',
+  base: "./",
 
   build: {
-    outDir: './apiserver/dist',
-    chunkSizeWarningLimit: 2000,
+    outDir: "./apiserver/dist",
+    chunkSizeWarningLimit: 5000,
   },
 
   server: {
@@ -19,17 +19,14 @@ export default defineConfig({
         secure: false,
       },
     },
-    allowedHosts: []
+    allowedHosts: [],
   },
 
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src/'),
+      "@": path.resolve(__dirname, "./src/"),
     },
   },
 
-  plugins: [
-    react(),
-    tailwindcss()
-  ],
-})
+  plugins: [react(), tailwindcss()],
+});

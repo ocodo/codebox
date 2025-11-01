@@ -18,11 +18,11 @@ export const Heading: FC<HeadingProps> = ({ title }) => {
     <div className="flex flex-wrap items-center justify-between p-4 border-b">
       <div className='flex flex-row gap-2' style={theme == 'dark' ? darkTitleTextForeground : lightTitleTextForeground}>
         <CodeBoxIcon className='w-10 h-10' style={thinIconStyle} />
-        <div className="font-black tracking-tighter text-4xl">{title}</div>
+        <div className="font-black select-none tracking-tighter text-4xl">{title}</div>
       </div>
       <div className='flex flex-row gap-2 items-center'>
         {
-          projectName && <div className="font-base text-xl">{projectName}</div>
+          projectName && <div className="select-none font-base text-xl">{projectName}</div>
         }
       </div>
       <div className='flex flex-wrap gap-2'>

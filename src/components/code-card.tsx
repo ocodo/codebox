@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
 import CodeMirror from '@uiw/react-codemirror';
-import { gruvboxDark, gruvboxLight } from '@uiw/codemirror-themes-all';
-import { BrushCleaning, Fullscreen, Settings2 } from "lucide-react";
+import { tokyoNight, vscodeLight } from '@uiw/codemirror-themes-all';
+import { Fullscreen, Paintbrush, Settings2 } from "lucide-react";
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
 import { useTheme } from "@/contexts/theme-context";
 import { TooltipCompact } from "@/components/tooltip-compact";
@@ -13,6 +13,7 @@ import parserBabel from "prettier/parser-babel";
 import prettier from "prettier/standalone";
 import * as parserHtml from "prettier/parser-html";
 import * as parserPostCSS from "prettier/parser-postcss";
+
 
 export interface CodeCardProps {
   title: string;
@@ -27,6 +28,7 @@ export interface CodeCardProps {
 
 export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime, setCode, extension }) => {
   const { theme } = useTheme()
+  const codeMirrorTheme = theme == 'dark' ? tokyoNight : vscodeLight
 
   const {
     focused,
@@ -133,14 +135,9 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
       <div className='text-xs p-1'>
         <div className={`flex-row flex gap-2 items-center justify-between`} onDoubleClick={focusCard}>
           <TooltipCompact tooltipChildren={
-            <>
-              <div>
-                Last updated ${new Date(mtime * 1000).toLocaleString()}
-              </div>
-              <div style={{ fontSize: 'x-small' }}>
-                Double Click to Expand/Restore
-              </div>
-            </>
+            <div>
+              Last updated ${new Date(mtime * 1000).toLocaleString()}
+            </div>
           } >
             <div>
               <div className='flex flex-row gap-2 items-center justify-start'>
@@ -150,25 +147,34 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
                 <div>
                   {title.toUpperCase()}
                 </div>
-                {
-                  activeCodeProcessors.length > 0 && (
-                    <div onClick={() => {
-                      setOpen(() => {
-                        setTab(language)
-                        return true
-                      })
-                    }}>
-                      <Settings2 className={buttonIconClasses} />
-                    </div>
-                  )
-                }
               </div>
             </div>
           </TooltipCompact>
-
+          {
+            activeCodeProcessors.length > 0 && (
+              <TooltipCompact tooltipChildren={`${title} settings`}>
+                <div onClick={() => {
+                  setOpen(() => {
+                    setTab(language)
+                    return true
+                  })
+                }}>
+                  <Settings2 className={buttonIconClasses} />
+                </div>
+              </TooltipCompact>
+            )
+          }
+          <div className={`
+            flex flex-row gap-1 w-full transition-colors duration-300
+            p-1 rounded-xl text-transparent
+            hover:bg-foreground/10 hover:text-foreground/70
+            items-center justify-center select-none
+            `}>
+            doubleclick to {focused == title ? 'collapse' : 'restore'}
+          </div>
           <div className="flex flex-row gap-2 items-center justify-end">
             <TooltipCompact tooltipChildren='Format Code'>
-              <BrushCleaning
+              <Paintbrush
                 onClick={() => formatCode()}
                 style={thinIconStyle}
                 className={buttonIconClasses} />
@@ -188,7 +194,7 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
             value={code}
             width={codeMirrorWidth()}
             height={codeMirrorHeight()}
-            theme={theme == 'dark' ? gruvboxDark : gruvboxLight}
+            theme={codeMirrorTheme}
             extensions={extension}
             onChange={onChange} />
         }
