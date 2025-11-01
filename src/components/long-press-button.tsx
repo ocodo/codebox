@@ -32,6 +32,8 @@ export const LongPressButton: React.FC<LongPressButtonProps> = ({
   className,
   ...rest
 }) => {
+
+  useEffect(()=> console.log(`Fill up color class: ${fillUpColorClass}`),[])
   const [fillPercentage, setFillPercentage] = useState<number>(0);
 
   const isPressingRef = useRef<boolean>(false);

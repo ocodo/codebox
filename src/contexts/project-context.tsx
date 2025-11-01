@@ -80,8 +80,9 @@ interface ProjectFile {
 
 interface ProjectCodeType {
   title: string;
+  language: WebLanguage;
   code: string;
-  codeSet: Dispatch<SetStateAction<string>>;
+  setCode: Dispatch<SetStateAction<string>>;
   mtime: number;
   mtimeSet: Dispatch<SetStateAction<number>>;
   filename: string;
@@ -112,28 +113,31 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const projectCode: ProjectCodeType[] = [
     {
       title: 'html',
+      language: 'html',
       mtime: htmlMtime,
       mtimeSet: setHtmlMtime,
       code: htmlCode,
-      codeSet: setHtmlCode,
+      setCode: setHtmlCode,
       filename: 'code.html',
       icon: <HTMLIcon className="w-5 h-5" />
     },
     {
       title: 'css',
+      language: 'css',
       mtime: cssMtime,
       mtimeSet: setCssMtime,
       code: cssCode,
-      codeSet: setCssCode,
+      setCode: setCssCode,
       filename: 'code.css',
       icon: <CSSIcon className="w-5 h-5" />
     },
     {
       title: 'js',
+      language: 'js',
       mtime: jsMtime,
       mtimeSet: setJsMtime,
       code: jsCode,
-      codeSet: setJsCode,
+      setCode: setJsCode,
       filename: 'code.js',
       icon: <JSIcon className="w-5 h-5" />
     },
@@ -334,7 +338,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
           if (response.ok) {
             const content = await response.text();
             if (content) {
-              code.codeSet(content);
+              code.setCode(content);
               const file = data.find((projectFile) => projectFile.filename == code.filename);
               if (file) code.mtimeSet(file.mtime);
             }

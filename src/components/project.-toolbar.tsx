@@ -52,6 +52,7 @@ export const ProjectToolbar: FC = () => {
         projectName &&
         <LongPressTooltipButton
           duration={200}
+          fillColor={`${liveUpdating ? 'bg-red' : 'bg-emerald'}`}
           title={`Live Updating is ${liveUpdating ? 'on' : 'off'}`}
           onLongPress={() => {
             setLiveUpdating(!liveUpdating)
