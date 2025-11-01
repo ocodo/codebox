@@ -1,10 +1,10 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
 import CodeMirror from '@uiw/react-codemirror';
 import { gruvboxDark, gruvboxLight } from '@uiw/codemirror-themes-all';
 import { BrushCleaning, Fullscreen, Settings2 } from "lucide-react";
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
-import { ThemeContext } from "@/contexts/theme-context";
+import { useTheme } from "@/contexts/theme-context";
 import { TooltipCompact } from "@/components/tooltip-compact";
 import { useProjectContext, type WebLanguage } from "@/contexts/project-context";
 import { useSettingsModal } from '@/contexts/settings-context';
@@ -26,7 +26,7 @@ export interface CodeCardProps {
 }
 
 export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime, setCode, extension }) => {
-  const { theme } = useContext(ThemeContext)
+  const { theme } = useTheme()
 
   const {
     focused,
