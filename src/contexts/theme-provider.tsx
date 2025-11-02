@@ -5,6 +5,10 @@ import { useLocalStorage } from "usehooks-ts";
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useLocalStorage<'light' | 'dark'>("theme", "light");
 
+  const isDark = () => theme === 'dark';
+
+  const ifDark = (yes: string, no: string) => isDark() ? yes : no
+
   useEffect(() => {
     const gradient = document.querySelector('.body-background-gradient')
     if (theme == 'dark') {
@@ -25,7 +29,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <ThemeContext.Provider value={{
       theme,
       setTheme,
-      toggleTheme
+      toggleTheme,
+      isDark,
+      ifDark,
     }}>
       {children}
     </ThemeContext.Provider>
