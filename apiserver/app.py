@@ -111,7 +111,12 @@ async def api_documentation(request: Request):
 async def get_projects():
     project_root_path = Path(config.project_root)
     if project_root_path.exists():
-        return [project.name for project in project_root_path.glob("/".join(["*"] * 1))]
+        return [
+            project.name
+            for project in project_root_path.glob("/".join(["*"] * 1))
+            if project.is_dir()
+        ]
+
     else:
         raise HTTPException(404)
 
@@ -323,7 +328,7 @@ async def get_project_composed(
     css_code = Path(source["css"]).read_text()
     js_code = Path(source["js"]).read_text()
 
-    active_cdn_links = ''
+    active_cdn_links = ""
     if Path(source["cdn"]).exists():
         active_cdn_links = Path(source["cdn"]).read_text()
 
