@@ -335,17 +335,20 @@ async def get_project_composed(
     cdn_links = ""
     if active_cdn_links:
         try:
-            cdn_link_names = json.loads(active_cdn_links)
-            if isinstance(cdn_link_names, list):
+            active_cdn_links = json.loads(active_cdn_links)
+            if isinstance(active_cdn_links, list):
+                cdn_links_list = OmegaConf.to_container(config.cdn_links)
+
                 active_cdn_link_dicts = [
-                    item for item in cdn_link_names if item["name"] in config.cdn_links
+                    item for item in cdn_links_list if item["name"] in active_cdn_links
                 ]
+
                 cdn_links = "\n".join(
                     [
                         (
                             f'<script src="{item["url"]}"></script>'
                             if item["type"] == "script"
-                            else f'<link rel="stylesheet" href="{item["url"]}">'
+                            else f'<link rel="stylesheet" href="{item["url"]}"></link>'
                         )
                         for item in active_cdn_link_dicts
                     ]

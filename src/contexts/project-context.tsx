@@ -18,12 +18,17 @@ export type LayoutType = 'vertical' | 'horizontal';
 export type WebLanguageType = 'js' | 'html' | 'css' | 'cdn'
 
 export interface CodeProcessorType {
-  target: WebLanguageType
+  name?: string;
+  target: WebLanguageType;
+  scriptType?: string;
+  cdns?: string[];
+  preprocessers?: string[];
 }
 
 export interface CdnLinkType {
   type: 'script' | 'link';
   name: string;
+  description?: string;
   url: string;
 }
 
@@ -67,6 +72,9 @@ export interface ProjectContextType {
   activeCdnLinks: Set<string>;
   fetchActiveCdnLinks: () => Promise<void>;
   updateActiveCdnLinks: () => Promise<void>;
+  activeProcessors: Set<string>;
+  fetchActiveProcessors: () => Promise<void>;
+  updateActiveProcessors: () => Promise<void>;
   codeProcessors: CodeProcessorType[];
   fetchCodeProcessors: () => Promise<void>;
   commitProjectChanges: () => Promise<void>;
@@ -154,6 +162,16 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     },
   ]
 
+  const activeProcessors = useSet<string>([])
+
+  const fetchActiveProcessors = async () => {
+    const data = await fetchProjectJsonFile('code.processors')
+    if (Array.isArray(data)) {
+      activeProcessors.clear()
+      data.forEach(activeProcessors.add)
+    }
+  }
+
   const activeCdnLinks = useSet<string>([])
 
   const fetchActiveCdnLinks = async () => {
@@ -190,7 +208,10 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    if (projectName) fetchActiveCdnLinks()
+    if (projectName) {
+      fetchActiveCdnLinks()
+      fetchActiveProcessors()
+    }
   }, [projectName])
 
   const projectCodeLookup = projectCode.reduce((acc, current) => {
@@ -305,6 +326,11 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const updateActiveCdnLinks = async () => {
     const json = JSON.stringify(Array.from(activeCdnLinks))
     await updateProjectFile('code.cdn', json)
+  }
+
+  const updateActiveProcessors = async () => {
+    const json = JSON.stringify(Array.from(activeProcessors))
+    await updateProjectFile('code.processors', json)
   }
 
   const createProject = async (name: string): Promise<void> => {
@@ -457,6 +483,9 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       fetchActiveCdnLinks,
       updateActiveCdnLinks,
       commitProjectChanges,
+      activeProcessors,
+      fetchActiveProcessors,
+      updateActiveProcessors,
     }}>
       {children}
     </ProjectContext.Provider>

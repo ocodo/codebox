@@ -3,7 +3,7 @@ import { ModalOverlay } from "@/components/modal-overlay"
 import { useSettingsModal } from "@/contexts/settings-context"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useProjectContext, type CdnLinkType } from "@/contexts/project-context"
+import { useProjectContext, type CdnLinkType, type CodeProcessorType } from "@/contexts/project-context"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import type { CodeCardProps } from "@/components/code-card"
 import { Circle, CircleCheck, CloudCog } from "lucide-react"
@@ -52,14 +52,19 @@ export const SettingsModal = () => {
           {
             availableProcessors.map(({ title }) => (
               <TabsContent key={title} value={title}>
-                <div className='text-muted-foreground text-sm'>{title.toUpperCase()} - Settings</div>
+                <div className='text-lg font-bold tracking-tighter'>{title.toUpperCase()}</div>
+
+                {codeProcessors
+                  .filter(p => p.target == title)
+                  .map((processor) =>
+                    <ProcessorSelect {...processor} />
+                  )}
               </TabsContent>
             ))
           }
           <TabsContent value='cdn'>
             <div className="p-2 mt-1 flex flex-col gap-2">
-              <div className="text-lg font-bold tracking-tighter">CDNs</div>
-              <div>CDN tags will be automatically added to the project view when selected</div>
+              <div className="text-lg font-bold tracking-tighter">CDN</div>
               {
                 cdnLinks.map(cdn => {
                   return (
@@ -75,7 +80,33 @@ export const SettingsModal = () => {
   )
 }
 
-export const CdnSelect: FC<CdnLinkType> = ({ name, type, url }) => {
+export const ProcessorSelect: FC<CodeProcessorType> = ({ name }) => {
+
+  const { activeProcessors } = useProjectContext()
+
+  return (
+    <div
+      onClick={() => {
+        if (name) {
+          if (activeProcessors.has(name)) {
+            activeProcessors.delete(name)
+          } else {
+            activeProcessors.add(name)
+          }
+        }
+      }}
+      className="flex-row flex items-center justify-start gap-2 cursor-pointer select-none" >
+      {
+        name && activeProcessors.has(name)
+          ? <CircleCheck className="w-3 h-3 " />
+          : <Circle className="w-3 h-3" />
+      }
+      <div>{name}</div>
+    </div>
+  )
+}
+
+export const CdnSelect: FC<CdnLinkType> = ({ name, type, url, description }) => {
   const { activeCdnLinks, updateActiveCdnLinks } = useProjectContext()
 
   const toggleCdn = () => {
@@ -90,7 +121,13 @@ export const CdnSelect: FC<CdnLinkType> = ({ name, type, url }) => {
   return (
 
     <TooltipCompact tooltipChildren={
-      <pre>{`<${type} ${type == 'link' ? 'href' : 'src'}="${url}"><${type}>`}</pre>
+      <>
+        <pre>{`<${type} ${type == 'link' ? 'href' : 'src'}="${url}"><${type}>`}</pre>
+        {
+          description &&
+          <div>{description}</div>
+        }
+      </>
     }>
       <div
         onClick={() => toggleCdn()}

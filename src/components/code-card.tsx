@@ -170,7 +170,7 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
             hover:bg-foreground/10 hover:text-foreground/70
             items-center justify-center select-none
             `}>
-            doubleclick to {focused == title ? 'collapse' : 'restore'}
+            doubleclick to {focused == title ? 'restore' : 'maximize'}
           </div>
           <div className="flex flex-row gap-2 items-center justify-end">
             <TooltipCompact tooltipChildren='Format Code'>

@@ -14,7 +14,7 @@ export const ViewCard: FC = () => {
   const iframeUrl = () => {
     if (updating) {
       setUpdating(false)
-      return ''
+      return
     } else {
       return url
     }
@@ -44,11 +44,13 @@ export const ViewCard: FC = () => {
           }}
         />
       </div>
-      <iframe
-        id="iframe-view"
-        ref={iframeRef}
-        className={`w-full ${horizontal() ? 'h-[83vh]' : 'h-[47vh]'}`}
-        src={iframeUrl()}></iframe>
+      {iframeUrl() &&
+        <iframe
+          id="iframe-view"
+          ref={iframeRef}
+          className={`w-full ${horizontal() ? 'h-[83vh]' : 'h-[47vh]'}`}
+          src={iframeUrl()}></iframe>
+      }
     </div>
   )
 }
