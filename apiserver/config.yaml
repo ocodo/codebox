@@ -5,18 +5,19 @@ template:
   std: |
     <!DOCTYPE html>
     <html>
-        <head>
-            {cdn_links}
-        </head>
-        <body>
-            {html_code}
-            <style>
-                {css_code}
-            </style>
-            <script>
-                {js_code}
-            </script>
-        </body>
+      <head>
+        <title>Project Composed</title>
+        {cdn_links}
+      </head>
+      <body>
+        {html_code}
+        <style>
+          {css_code}
+        </style>
+        <script>
+          {js_code}
+        </script>
+      </body>
     </html>
 
 code:

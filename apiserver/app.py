@@ -227,30 +227,6 @@ async def create_project(name: str):
             raise HTTPException(500, f"Error creating project {name}\n\n{e}")
 
 
-@api.post("/project/{name}/{filename}")
-async def create_project_file(name: str, filename: str, request: Request):
-    project_root = Path(config.project_root, name)
-    project_file_path = project_root / filename
-    if project_file_path.exists():
-        raise HTTPException(409, f"Project {name}/{filename} already exists")
-    else:
-        data = await request.json()
-        if data.get("content"):
-            project_file_path.write_text(data["content"])
-        else:
-            project_file_path.write_text("")
-
-        repo = Repo(project_root)
-        repo.index.add(filename)
-        commit = repo.index.commit(
-            f"Added {filename}",
-            author=git_author,
-            committer=git_author,
-        )
-
-        return {"detail": f"created {name}/{filename}", "commit": git_show(commit)}
-
-
 @api.get("/commit/project/{name}")
 def git_commit_project(name: str):
     project_root = Path(config.project_root, name)
@@ -273,18 +249,15 @@ def git_commit_project(name: str):
 async def update_project_file_content(name: str, filename: str, request: Request):
     project_root = Path(config.project_root, name)
     project_file_path = project_root / filename
-    if project_file_path.exists():
-        data = await request.json()
-        if data.get("content"):
-            project_file_path.write_text(data["content"])
-        else:
-            project_file_path.write_text("")
-
-        return {
-            "detail": f"updated {name}/{filename} (use api/commit/project/{name} to commit changes.)"
-        }
+    data = await request.json()
+    if data.get("content"):
+        project_file_path.write_text(data["content"])
     else:
-        raise HTTPException(404, f"Project {name}/{filename} not found")
+        project_file_path.write_text("")
+
+    return {
+        "detail": f"updated {name}/{filename} (use api/commit/project/{name} to commit changes.)"
+    }
 
 
 @api.get("/image/project/{name}")
@@ -350,9 +323,10 @@ async def get_project_composed(
     css_code = Path(source["css"]).read_text()
     js_code = Path(source["js"]).read_text()
 
-    active_cdn_links = (
-        Path(source["cdn"]).read_text() if Path(source["cdn"]).exists() else ""
-    )
+    active_cdn_links = ''
+    if Path(source["cdn"]).exists():
+        active_cdn_links = Path(source["cdn"]).read_text()
+
     cdn_links = ""
     if active_cdn_links:
         try:

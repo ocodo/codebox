@@ -15,13 +15,13 @@ import { useSet } from '@uidotdev/usehooks';
 
 export type LayoutType = 'vertical' | 'horizontal';
 
-export type WebLanguageType = 'js' | 'html' | 'css'
+export type WebLanguageType = 'js' | 'html' | 'css' | 'cdn'
 
 export interface CodeProcessorType {
   target: WebLanguageType
 }
 
-export interface CDNLinkType {
+export interface CdnLinkType {
   type: 'script' | 'link';
   name: string;
   url: string;
@@ -62,11 +62,11 @@ export interface ProjectContextType {
   horizontal: () => boolean;
   vertical: () => boolean;
   isFocused: (title: string) => boolean;
-  CDNLinks: CDNLinkType[];
-  fetchCDNLinks: () => Promise<void>;
-  activeCDNLinks: Set<string>;
-  fetchActiveCDNLinks: () => Promise<void>;
-  updateActiveCDNLinks: () => Promise<void>;
+  cdnLinks: CdnLinkType[];
+  fetchCdnLinks: () => Promise<void>;
+  activeCdnLinks: Set<string>;
+  fetchActiveCdnLinks: () => Promise<void>;
+  updateActiveCdnLinks: () => Promise<void>;
   codeProcessors: CodeProcessorType[];
   fetchCodeProcessors: () => Promise<void>;
   commitProjectChanges: () => Promise<void>;
@@ -154,23 +154,23 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     },
   ]
 
-  const activeCDNLinks = useSet<string>([])
+  const activeCdnLinks = useSet<string>([])
 
-  const fetchActiveCDNLinks = async () => {
+  const fetchActiveCdnLinks = async () => {
     const data = await fetchProjectJsonFile('code.cdn')
     if (Array.isArray(data)) {
-      activeCDNLinks.clear()
-      data.forEach(activeCDNLinks.add)
+      activeCdnLinks.clear()
+      data.forEach(activeCdnLinks.add)
     }
   }
 
-  const [CDNLinks, setCDNLinks] = useState<CDNLinkType[]>([])
+  const [cdnLinks, setCdnLinks] = useState<CdnLinkType[]>([])
 
-  const fetchCDNLinks = async () => {
+  const fetchCdnLinks = async () => {
     const response = await fetch(`api/cdn_links`)
     if (response.ok) {
       const data = await response.json()
-      setCDNLinks(data)
+      setCdnLinks(data)
     }
   }
 
@@ -186,7 +186,12 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   useEffect(() => {
     fetchCodeProcessors()
+    fetchCdnLinks()
   }, [])
+
+  useEffect(() => {
+    if (projectName) fetchActiveCdnLinks()
+  }, [projectName])
 
   const projectCodeLookup = projectCode.reduce((acc, current) => {
     acc[current.title] = current;
@@ -297,8 +302,8 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }
 
-  const updateActiveCDNLinks = async () => {
-    const json = JSON.stringify(Array.from(activeCDNLinks))
+  const updateActiveCdnLinks = async () => {
+    const json = JSON.stringify(Array.from(activeCdnLinks))
     await updateProjectFile('code.cdn', json)
   }
 
@@ -446,11 +451,11 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       snapshotView,
       codeProcessors,
       fetchCodeProcessors,
-      CDNLinks,
-      fetchCDNLinks,
-      activeCDNLinks,
-      fetchActiveCDNLinks,
-      updateActiveCDNLinks,
+      cdnLinks,
+      fetchCdnLinks,
+      activeCdnLinks,
+      fetchActiveCdnLinks,
+      updateActiveCdnLinks,
       commitProjectChanges,
     }}>
       {children}
