@@ -7,7 +7,7 @@ import { useRef, type FC } from "react";
 
 export const ViewCard: FC = () => {
   const { projectName, updating, setUpdating, horizontal } = useProjectContext()
-  const url = `/api/composite/project/${projectName}`;
+  const url = `/api/composed/project/${projectName}`;
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   // const isFullscreen = document.fullscreenElement === iframeRef?.current;
 

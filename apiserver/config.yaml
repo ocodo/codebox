@@ -35,7 +35,7 @@ code_processors:
 cdn_links:
   - name: Tailwind
     type: script
-    url: https://cdn.tailwindcss.com
+    url: https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4
   - name: React
     type: script
     url: https://cdn.jsdelivr.net/npm/react@19.2.0/jsx-runtime.min.js

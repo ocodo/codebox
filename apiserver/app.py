@@ -7,6 +7,7 @@ from omegaconf import OmegaConf
 from omegaconf.errors import OmegaConfBaseException
 from typing import Optional
 from git import Repo, Actor, Git
+import json
 import shutil
 import sys
 import logging
@@ -334,10 +335,10 @@ def get_cdn_links():
     return OmegaConf.to_container(config.cdn_links, resolve=True)
 
 
-@api.get("/composite/project/{name}")
-async def get_project_composite(
+@api.get("/composed/project/{name}")
+async def get_project_composed(
     name: str,
-    raw: bool = Query(False, description="Return raw project data if true"),
+    raw: bool = Query(False, description="Return via raw template if true"),
 ):
     project_path = Path(config.project_root, name)
 
@@ -348,7 +349,31 @@ async def get_project_composite(
     html_code = Path(source["html"]).read_text()
     css_code = Path(source["css"]).read_text()
     js_code = Path(source["js"]).read_text()
-    cdn_links = Path(source["cdn"]).read_text() if Path(source["cdn"]).exists() else ''
+
+    active_cdn_links = (
+        Path(source["cdn"]).read_text() if Path(source["cdn"]).exists() else ""
+    )
+    cdn_links = ""
+    if active_cdn_links:
+        try:
+            cdn_link_names = json.loads(active_cdn_links)
+            if isinstance(cdn_link_names, list):
+                active_cdn_link_dicts = [
+                    item for item in cdn_link_names if item["name"] in config.cdn_links
+                ]
+                cdn_links = "\n".join(
+                    [
+                        (
+                            f'<script src="{item["url"]}"></script>'
+                            if item["type"] == "script"
+                            else f'<link rel="stylesheet" href="{item["url"]}">'
+                        )
+                        for item in active_cdn_link_dicts
+                    ]
+                )
+
+        except Exception:
+            HTTPException(500, f"code.cdn on {name} is not valid json")
 
     template = config.template.raw if raw else config.template.std
 

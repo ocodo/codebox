@@ -229,7 +229,6 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       return;
     }
 
-    // Get the first stylesheet, code.css must be the first one in the composite template
     const styleSheet = iframeDoc.styleSheets[0];
 
     const rules = Array.from(styleSheet.cssRules || styleSheet.rules);
