@@ -8,10 +8,8 @@ import { css } from '@codemirror/lang-css';
 import html2canvas from 'html2canvas';
 import type { CodeCardProps } from "@/components/code-card";
 import { useLocalStorage } from "usehooks-ts";
-import { JSIcon } from "@/components/js-icon";
-import { CSSIcon } from "@/components/css-icon";
-import { HTMLIcon } from "@/components/html-icon";
 import { useSet } from '@uidotdev/usehooks';
+import { Asterisk, Braces, Code } from "lucide-react";
 
 export type LayoutType = 'vertical' | 'horizontal';
 
@@ -138,7 +136,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       code: htmlCode,
       setCode: setHtmlCode,
       filename: 'code.html',
-      icon: <HTMLIcon className="w-5 h-5" />
+      icon: <Code className="w-5 h-5" />
     },
     {
       title: 'css',
@@ -148,7 +146,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       code: cssCode,
       setCode: setCssCode,
       filename: 'code.css',
-      icon: <CSSIcon className="w-5 h-5" />
+      icon: <Asterisk className="w-5 h-5" />
     },
     {
       title: 'js',
@@ -158,7 +156,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       code: jsCode,
       setCode: setJsCode,
       filename: 'code.js',
-      icon: <JSIcon className="w-5 h-5" />
+      icon: <Braces className="w-5 h-5" />
     },
   ]
 

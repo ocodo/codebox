@@ -1,4 +1,4 @@
-project_root: /mnt/Mira/codebox
+project_root: projects
 
 template:
   raw: "{html_code}"
@@ -27,19 +27,25 @@ code:
   cdn: ""
 
 code_processors:
-  - target: js
-    name: tsx
+  - target: html
+    plugins:
+        - name: Slim
+        - name: Haml
+        - name: Jade
 
   - target: css
-    name: scss
+    plugins:
+       - name: Sass
+
+  - target: js
+    plugins:
+    - name: React (Babel/jsx)
 
 cdn_links:
   - name: Tailwind
+    description: Tailwind classes will be usable in HTML
     type: script
     url: https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4
-  - name: React
-    type: script
-    url: https://cdn.jsdelivr.net/npm/react@19.2.0/jsx-runtime.min.js
 
 git:
   author:

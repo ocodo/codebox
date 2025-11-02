@@ -1,4 +1,3 @@
-import type { WebLanguageType } from "@/contexts/project-context";
 import { createContext, useContext, useState } from "react";
 import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
 
@@ -6,8 +5,8 @@ interface SettingsContextType {
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>;
   close: () => void
-  tab: WebLanguageType;
-  setTab: Dispatch<SetStateAction<WebLanguageType>>;
+  tab: string;
+  setTab: Dispatch<SetStateAction<string>>;
 }
 
 export const SettingsModalContext = createContext<SettingsContextType>({} as SettingsContextType);
@@ -23,7 +22,7 @@ export const useSettingsModal = (): SettingsContextType => {
 export const SettingsModalProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const [open, setOpen] = useState(false)
-  const [tab, setTab] = useState<WebLanguageType>('js')
+  const [tab, setTab] = useState<string>('js')
 
   const close = () => {
     setOpen(false)
