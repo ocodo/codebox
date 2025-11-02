@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
 import CodeMirror from '@uiw/react-codemirror';
-import { tokyoNight, vscodeLight } from '@uiw/codemirror-themes-all';
+import { tokyoNight, gruvboxLight } from '@uiw/codemirror-themes-all';
 import { Fullscreen, Paintbrush, Settings2 } from "lucide-react";
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
 import { useTheme } from "@/contexts/theme-context";
@@ -28,7 +28,7 @@ export interface CodeCardProps {
 
 export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime, setCode, extension }) => {
   const { theme } = useTheme()
-  const codeMirrorTheme = theme == 'dark' ? tokyoNight : vscodeLight
+  const codeMirrorTheme = theme == 'dark' ? tokyoNight : gruvboxLight;
 
   const {
     focused,
