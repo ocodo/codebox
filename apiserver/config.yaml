@@ -1,8 +1,29 @@
 project_root: /mnt/Mira/codebox
+
 template:
+  raw: "{html_code}"
+  std: |
+    <!DOCTYPE html>
+    <html>
+        <head>
+            {cdn_links}
+        </head>
+        <body>
+            {html_code}
+            <style>
+                {css_code}
+            </style>
+            <script>
+                {js_code}
+            </script>
+        </body>
+    </html>
+
+code:
   js: ""
   css: ""
   html: ""
+  cdn: ""
 
 code_processors:
   - target: js
@@ -10,6 +31,14 @@ code_processors:
 
   - target: css
     name: scss
+
+cdn_links:
+  - name: Tailwind
+    type: script
+    url: https://cdn.tailwindcss.com
+  - name: React
+    type: script
+    url: https://cdn.jsdelivr.net/npm/react@19.2.0/jsx-runtime.min.js
 
 git:
   author:

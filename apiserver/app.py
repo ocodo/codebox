@@ -210,8 +210,8 @@ async def create_project(name: str):
             project_path.mkdir()
             repo = Repo.init(project_path)
 
-            for k in config.template.keys():
-                Path(project_path, f"code.{k}").write_text(config.template[k])
+            for k in config.code.keys():
+                Path(project_path, f"code.{k}").write_text(config.code[k])
 
             repo.index.add("*")
             commit = repo.index.commit(
@@ -293,9 +293,8 @@ async def get_project_image(name: str):
 
     if not image_path.exists():
         return FileResponse(
-            path='placeholder.png', media_type="image/png", filename='placeholder.png'
+            path="placeholder.png", media_type="image/png", filename="placeholder.png"
         )
-
 
     return FileResponse(
         path=image_path, media_type="image/png", filename=image_filename
@@ -330,37 +329,39 @@ def get_code_processors():
     return OmegaConf.to_container(config.code_processors, resolve=True)
 
 
+@api.get("/cdn_links")
+def get_cdn_links():
+    return OmegaConf.to_container(config.cdn_links, resolve=True)
+
+
 @api.get("/composite/project/{name}")
-async def get_project_composite(name: str):
+async def get_project_composite(
+    name: str,
+    raw: bool = Query(False, description="Return raw project data if true"),
+):
     project_path = Path(config.project_root, name)
 
-    # project settings from config.yaml...
-    # css:
-    #   preprocessor: ?
-    # html:
-    #   preprocessor: ?
-    # js:
-    #   preprocessor: ?
-    # codemirror: ?
-
-    source = {"css": "", "js": "", "html": ""}
+    source = {"css": "", "js": "", "html": "", "cdn": ""}
     for k in source.keys():
         source[k] = project_path / f"code.{k}"
 
     html_code = Path(source["html"]).read_text()
     css_code = Path(source["css"]).read_text()
     js_code = Path(source["js"]).read_text()
+    cdn_links = Path(source["cdn"]).read_text() if Path(source["cdn"]).exists() else ''
+
+    template = config.template.raw if raw else config.template.std
+
+    if raw:
+        return HTMLResponse(template.format(html_code=html_code))
 
     return HTMLResponse(
-        f"""
-        {html_code}
-        <style>
-            {css_code}
-        </style>
-        <script>
-            {js_code}
-        </script>
-        """
+        template.format(
+            html_code=html_code,
+            css_code=css_code,
+            js_code=js_code,
+            cdn_links=cdn_links,
+        )
     )
 
 

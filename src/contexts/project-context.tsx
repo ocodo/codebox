@@ -11,6 +11,7 @@ import { useLocalStorage } from "usehooks-ts";
 import { JSIcon } from "@/components/js-icon";
 import { CSSIcon } from "@/components/css-icon";
 import { HTMLIcon } from "@/components/html-icon";
+import { useSet } from '@uidotdev/usehooks';
 
 export type LayoutType = 'vertical' | 'horizontal';
 
@@ -61,6 +62,11 @@ export interface ProjectContextType {
   horizontal: () => boolean;
   vertical: () => boolean;
   isFocused: (title: string) => boolean;
+  CDNLinks: CDNLinkType[];
+  fetchCDNLinks: () => Promise<void>;
+  activeCDNLinks: Set<string>;
+  fetchActiveCDNLinks: () => Promise<void>;
+  updateActiveCDNLinks: () => Promise<void>;
   codeProcessors: CodeProcessorType[];
   fetchCodeProcessors: () => Promise<void>;
   commitProjectChanges: () => Promise<void>;
@@ -147,6 +153,26 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       icon: <JSIcon className="w-5 h-5" />
     },
   ]
+
+  const activeCDNLinks = useSet<string>([])
+
+  const fetchActiveCDNLinks = async () => {
+    const data = await fetchProjectJsonFile('code.cdn')
+    if (Array.isArray(data)) {
+      activeCDNLinks.clear()
+      data.forEach(activeCDNLinks.add)
+    }
+  }
+
+  const [CDNLinks, setCDNLinks] = useState<CDNLinkType[]>([])
+
+  const fetchCDNLinks = async () => {
+    const response = await fetch(`api/cdn_links`)
+    if (response.ok) {
+      const data = await response.json()
+      setCDNLinks(data)
+    }
+  }
 
   const [codeProcessors, setCodeProcessors] = useState<CodeProcessorType[]>([])
 
@@ -272,6 +298,11 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }
 
+  const updateActiveCDNLinks = async () => {
+    const json = JSON.stringify(Array.from(activeCDNLinks))
+    await updateProjectFile('code.cdn', json)
+  }
+
   const createProject = async (name: string): Promise<void> => {
     const response = await fetch(`api/project/${name}`,
       {
@@ -330,6 +361,17 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       toast(`No project open`)
     }
 
+  }
+
+
+  const fetchProjectJsonFile = async (filename: string) => {
+    const response = await fetch(`api/project/${projectName}/${filename}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data) {
+        return data
+      }
+    }
   }
 
   const fetchProjectFiles = async (name: string): Promise<void> => {
@@ -405,6 +447,11 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       snapshotView,
       codeProcessors,
       fetchCodeProcessors,
+      CDNLinks,
+      fetchCDNLinks,
+      activeCDNLinks,
+      fetchActiveCDNLinks,
+      updateActiveCDNLinks,
       commitProjectChanges,
     }}>
       {children}
