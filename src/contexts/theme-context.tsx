@@ -7,7 +7,7 @@ export interface ThemeContextType {
   theme: Theme
   toggleTheme: () => void
   isDark: () => boolean
-  ifDark: (yes: string, no: string) => string
+  ifDark: (yes: any, no: any) => any
 }
 
 export const ThemeContext = createContext<ThemeContextType>({} as ThemeContextType);

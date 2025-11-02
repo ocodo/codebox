@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
 import CodeMirror from '@uiw/react-codemirror';
-import { tokyoNight, gruvboxLight } from '@uiw/codemirror-themes-all';
+import { duotoneLight, tokyoNight } from '@uiw/codemirror-themes-all';
 import { Fullscreen, Paintbrush, Settings2 } from "lucide-react";
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
 import { useTheme } from "@/contexts/theme-context";
@@ -13,7 +13,6 @@ import parserBabel from "prettier/parser-babel";
 import prettier from "prettier/standalone";
 import * as parserHtml from "prettier/parser-html";
 import * as parserPostCSS from "prettier/parser-postcss";
-
 
 export interface CodeCardProps {
   title: string;
@@ -27,8 +26,7 @@ export interface CodeCardProps {
 }
 
 export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime, setCode, extension }) => {
-  const { theme } = useTheme()
-  const codeMirrorTheme = theme == 'dark' ? tokyoNight : gruvboxLight;
+  const { ifDark } = useTheme()
 
   const {
     focused,
@@ -194,7 +192,7 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
             value={code}
             width={codeMirrorWidth()}
             height={codeMirrorHeight()}
-            theme={codeMirrorTheme}
+            theme={ifDark(tokyoNight, duotoneLight)}
             extensions={extension}
             onChange={onChange} />
         }
