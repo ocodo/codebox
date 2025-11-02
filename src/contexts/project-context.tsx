@@ -12,12 +12,18 @@ import { JSIcon } from "@/components/js-icon";
 import { CSSIcon } from "@/components/css-icon";
 import { HTMLIcon } from "@/components/html-icon";
 
-export type Layout = 'vertical' | 'horizontal';
+export type LayoutType = 'vertical' | 'horizontal';
 
-export type WebLanguage = 'js' | 'html' | 'css'
+export type WebLanguageType = 'js' | 'html' | 'css'
 
-export interface CodeProcessor {
-  target: WebLanguage
+export interface CodeProcessorType {
+  target: WebLanguageType
+}
+
+export interface CDNLinkType {
+  type: 'script' | 'link';
+  name: string;
+  url: string;
 }
 
 export interface ProjectContextType {
@@ -49,18 +55,17 @@ export interface ProjectContextType {
   deleteCurrentProject: () => Promise<void>;
   snapshotView: () => Promise<void>;
   codeCards: CodeCardProps[];
-  layout: Layout;
-  setLayout: (newValue: Layout) => void;
+  layout: LayoutType;
+  setLayout: (newValue: LayoutType) => void;
   toggleLayout: () => void;
   horizontal: () => boolean;
   vertical: () => boolean;
   isFocused: (title: string) => boolean;
-  codeProcessors: CodeProcessor[];
+  codeProcessors: CodeProcessorType[];
   fetchCodeProcessors: () => Promise<void>;
   commitProjectChanges: () => Promise<void>;
   liveUpdating: boolean;
   setLiveUpdating: Dispatch<SetStateAction<boolean>>;
-
 }
 
 export const ProjectContext = createContext<ProjectContextType>({} as ProjectContextType);
@@ -80,7 +85,7 @@ interface ProjectFile {
 
 interface ProjectCodeType {
   title: string;
-  language: WebLanguage;
+  language: WebLanguageType;
   code: string;
   setCode: Dispatch<SetStateAction<string>>;
   mtime: number;
@@ -90,7 +95,7 @@ interface ProjectCodeType {
 }
 
 export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [layout, setLayout] = useLocalStorage<Layout>('viewLayout', 'vertical')
+  const [layout, setLayout] = useLocalStorage<LayoutType>('viewLayout', 'vertical')
   const [projectName, setProjectName] = useState<string | undefined>()
   const [htmlCode, setHtmlCode] = useState<string>('')
   const [jsCode, setJsCode] = useState<string>('')
@@ -143,7 +148,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     },
   ]
 
-  const [codeProcessors, setCodeProcessors] = useState<CodeProcessor[]>([])
+  const [codeProcessors, setCodeProcessors] = useState<CodeProcessorType[]>([])
 
   const fetchCodeProcessors = async () => {
     const response = await fetch(`api/code_processors`)

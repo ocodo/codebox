@@ -6,7 +6,7 @@ import { Fullscreen, Paintbrush, Settings2 } from "lucide-react";
 import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
 import { useTheme } from "@/contexts/theme-context";
 import { TooltipCompact } from "@/components/tooltip-compact";
-import { useProjectContext, type WebLanguage } from "@/contexts/project-context";
+import { useProjectContext, type WebLanguageType } from "@/contexts/project-context";
 import { useSettingsModal } from '@/contexts/settings-context';
 import estree from 'prettier/plugins/estree'
 import parserBabel from "prettier/parser-babel";
@@ -17,7 +17,7 @@ import * as parserPostCSS from "prettier/parser-postcss";
 
 export interface CodeCardProps {
   title: string;
-  language: WebLanguage;
+  language: WebLanguageType;
   code: string;
   setCode: Dispatch<SetStateAction<string>>;
   mtime: number;
