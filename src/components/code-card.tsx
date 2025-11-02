@@ -136,7 +136,7 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
         <div className={`flex-row flex gap-2 items-center justify-between`} onDoubleClick={focusCard}>
           <TooltipCompact tooltipChildren={
             <div>
-              Last updated ${new Date(mtime * 1000).toLocaleString()}
+              Last updated {new Date(mtime * 1000).toLocaleString()}
             </div>
           } >
             <div>
