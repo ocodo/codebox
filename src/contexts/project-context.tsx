@@ -9,7 +9,7 @@ import html2canvas from 'html2canvas';
 import type { CodeCardProps } from "@/components/code-card";
 import { useLocalStorage } from "usehooks-ts";
 import { useSet } from '@uidotdev/usehooks';
-import { Asterisk, Braces, Code } from "lucide-react";
+import { Asterisk, Braces, CodeXml } from "lucide-react";
 
 export type LayoutType = 'vertical' | 'horizontal';
 
@@ -136,7 +136,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       code: htmlCode,
       setCode: setHtmlCode,
       filename: 'code.html',
-      icon: <Code className="w-5 h-5" />
+      icon: <CodeXml className="w-5 h-5" />
     },
     {
       title: 'css',
