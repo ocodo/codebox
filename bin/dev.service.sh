@@ -9,8 +9,7 @@ cd apiserver
 FASTAPI_PID=$!
 
 cd ..
-eval $($HOME/.local/share/fnm/fnm env --shell bash)
-vite --host 0.0.0.0 --port 1993 &
+pnpx vite --config vite.config.dev.ts  --host 0.0.0.0 --port 1993 &
 VITE_PID=$!
 
 function cleanup {
