@@ -16,7 +16,7 @@ export const pinnedSearchQueryClasses = `
   cursor-pointer
 `
 
-export const modalContent = "bg-card rounded-lg p-6 w-full h-full relative";
+export const modalContent = "bg-card rounded-lg p-6 w-full h-full relative overflow-auto";
 export const modalHeader = "flex flex-row justify-start items-center mb-4 gap-2";
 export const modalTitle = "text-xl font-bold tracking-tighter";
 export const modalIconButton = 'border border-foreground/50 hover:border-foreground hover:bg-background rounded-full p-1 cursor-pointer transition-colors duration-700'

@@ -109,7 +109,6 @@ export const ProjectToolbar: FC = () => {
               addAction={
                 (newName) => {
                   if (newName) {
-                    toast(`Renaming project ${projectName} -> ${newName}`)
                     renameCurrentProject(newName)
                     return true
                   }

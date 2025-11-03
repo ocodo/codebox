@@ -5,8 +5,12 @@ import { useSettingsModal } from "@/contexts/settings-context"
 import { useProjectContext, type CdnLinkType, type CodeProcessorType } from "@/contexts/project-context"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import type { CodeCardProps } from "@/components/code-card"
-import { Circle, CircleCheckBig, Globe } from "lucide-react"
-import { type FC } from "react"
+import { Circle, CircleCheckBig, CropIcon, Globe, Settings2, XCircle } from "lucide-react"
+import { useState, type FC } from "react"
+import { buttonIconClasses } from "@/lib/styles"
+import ReactCrop, { type Crop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css'
+import { toast } from "sonner"
 
 export const SettingsModal = () => {
   const { open, close, tab, setTab } = useSettingsModal()
@@ -24,6 +28,9 @@ export const SettingsModal = () => {
           <div className={`flex flex-row items-center
                            p-2 px-3 rounded-xl bg-background/50
                            w-fit inset-shadow-xs`}>
+            {
+              // Tab Icons / Tooltips
+            }
             {availableProcessors.map(({ title, icon }) =>
               <div key={title}>
                 <TooltipCompact tooltipChildren={<div className='px-2 py-1 text-xs'>{title}</div>}>
@@ -40,6 +47,9 @@ export const SettingsModal = () => {
                 </TooltipCompact>
               </div>
             )}
+            {
+              // CDN icon / tooltip
+            }
             <div>
               <TooltipCompact tooltipChildren={<div className='px-2 py-1 text-xs'>cdn</div>}>
                 <div
@@ -56,8 +66,26 @@ export const SettingsModal = () => {
                 </div>
               </TooltipCompact>
             </div>
+            {
+              // Project Settings General
+            }
+            <div>
+              <TooltipCompact tooltipChildren={''}>
+                <div
+                  onClick={() => setTab('general')}
+                  className={`
+                      flex flex-col items-center gap-1
+                      px-2.5 p-1 cursor-pointer
+                      rounded-md
+                      ${tab == 'general' ? 'bg-white/70 dark:bg-black' : ''}`}
+                >
+                  <Settings2
+                    className="w-5 h-5"
+                  />
+                </div>
+              </TooltipCompact>
+            </div>
           </div>
-
           {
             availableProcessors.map(({ title }) => (
               <>
@@ -94,7 +122,12 @@ export const SettingsModal = () => {
               </div>
             }
           </>
+          {
+            tab == 'general' &&
+            <ProjectGeneralSettingsTab />
+          }
         </div>
+
       </div>
     </ModalOverlay>
   )
@@ -160,5 +193,110 @@ export const CdnSelect: FC<CdnLinkType> = ({ name, type, url, description }) => 
       </div>
     </TooltipCompact>
 
+  )
+}
+
+const ProjectGeneralSettingsTab: FC = () => {
+  const { projectName } = useProjectContext()
+  const [cropping, setCropping] = useState<boolean>(false)
+  const [crop, setCrop] = useState<Crop>()
+
+  const cropImage = async () => {
+    try {
+
+      const response = await fetch(`api/image/crop/project/${projectName}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(crop)
+      })
+
+      if (response.ok) {
+        toast.success('Cropped project image')
+        return
+      }
+    } catch {
+
+    }
+
+    toast.error(`Error cropping project image`)
+  }
+
+  return (
+    <div>
+      <div className="p-2 mt-1 flex flex-col gap-2">
+        <div className="text-lg font-bold tracking-tighter">General</div>
+        <div>
+          {
+            !cropping &&
+            <div className="flex flex-col items-center">
+
+              <div
+                className="m-2 flex flex-col items-center bg-primary p-3 text-background rounded-xl select-none cursor-pointer w-20"
+                onClick={() => {
+                  setCropping(true)
+                }}
+              >
+                <CropIcon
+                  className={buttonIconClasses}
+                />
+                <div className="text-[xx-small]">Crop</div>
+              </div>
+
+              <img
+                className={`
+                        max-w-[640px] max-h-[360px]
+                        rounded-xl border-foreground/10 border-1
+                        p-1
+                        `}
+                src={`api/image/project/${projectName}`}
+              />
+
+            </div>
+          }
+          {
+            cropping &&
+            <div className="flex flex-col items-center">
+              <div className="flex flex-row items-center justify-center">
+
+                <div
+                  className="m-2 flex flex-col items-center bg-primary p-3 text-background rounded-xl select-none cursor-pointer w-20"
+                  onClick={() => setCropping(false)}
+                >
+                  <XCircle className={buttonIconClasses}
+                  />
+                  <div className="text-[xx-small]">Cancel</div>
+                </div>
+
+                <div
+                  className="m-2 flex flex-col items-center bg-primary p-3 text-background rounded-xl select-none cursor-pointer w-20"
+                  onClick={() => {
+                    cropImage()
+                  }}
+                >
+                  <CircleCheckBig className={buttonIconClasses}
+                  />
+                  <div className="text-[xx-small]">Cancel</div>
+                </div>
+              </div>
+
+              <ReactCrop
+                crop={crop}
+                aspect={16 / 9}
+                onChange={(c) => setCrop(c)}
+              >
+                <img
+                  src={`api/image/project/${projectName}`}
+                />
+              </ReactCrop>
+            </div>
+          }
+          <div>
+            More stuff...
+          </div>
+        </div>
+      </div>
+    </div >
   )
 }

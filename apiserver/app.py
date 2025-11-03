@@ -1,6 +1,6 @@
 from pathlib import Path
 from fastapi import FastAPI, Request, APIRouter, HTTPException, Query, UploadFile, File
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic.dataclasses import dataclass
 from omegaconf import OmegaConf
@@ -78,7 +78,7 @@ def health_check():
     This is useful for container orchestration systems (like Docker Swarm or
     Kubernetes) and load balancers to verify service availability.
     """
-    return {"status": "ok"}
+    return JSONResponse({"status": "ok"})
 
 
 @api.get("/docs", include_in_schema=False)
@@ -111,11 +111,11 @@ async def api_documentation(request: Request):
 async def get_projects():
     project_root_path = Path(config.project_root)
     if project_root_path.exists():
-        return [
+        return JSONResponse([
             project.name
             for project in project_root_path.glob("/".join(["*"] * 1))
             if project.is_dir()
-        ]
+        ])
 
     else:
         raise HTTPException(404)
@@ -127,7 +127,7 @@ async def get_history(name: str):
     if project_path.exists():
         g = Git(project_path)
         log = [entry.split(" ") for entry in g.log("--format=%H %ct").splitlines()]
-        return log
+        return JSONResponse(log)
     else:
         HTTPException(404, f"{name} not found")
 
@@ -153,7 +153,7 @@ async def get_project_file(
     if content:
         media_type = CONTENT_TYPE_MAPPING.get(content)
 
-    return FileResponse(path=file_path, media_type=media_type)
+    return Response(file_path.read_bytes(), media_type=media_type)
 
 
 @api.get("/project/{name}")
@@ -271,14 +271,17 @@ async def get_project_image(name: str):
     image_path = Path(config.project_root, name, image_filename)
 
     if not image_path.exists():
-        return FileResponse(
-            path="placeholder.png", media_type="image/png", filename="placeholder.png"
+        return Response(
+            Path("placeholder.png").read_bytes(), media_type="image/png"
         )
 
-    return FileResponse(
-        path=image_path, media_type="image/png", filename=image_filename
+    return Response(
+        image_path.read_bytes(), media_type="image/png"
     )
 
+@api.post("/image/crop/project/{name}")
+async def crop_project_image(name: str, crop: Request):
+    return JSONResponse(await crop.json())
 
 @api.post("/image/project/{name}")
 async def upload_project_image(name: str, image: UploadFile = File(...)):
