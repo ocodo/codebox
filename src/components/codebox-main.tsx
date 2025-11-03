@@ -6,11 +6,7 @@ import { Allotment } from "allotment";
 import "allotment/dist/style.css";
 
 export const CodeBox: FC = () => {
-  const {
-    projectName,
-    layout,
-    fetchProjectFiles,
-  } = useProjectContext();
+  const { projectName, layout, fetchProjectFiles } = useProjectContext();
 
   useEffect(() => {
     if (projectName) {
@@ -21,7 +17,7 @@ export const CodeBox: FC = () => {
 
   return (
     <div className="h-full">
-      <Allotment vertical={layout === 'vertical'} key={layout}>
+      <Allotment vertical={layout === "vertical"} separator={true} key={layout}>
         <Allotment.Pane>
           <CodeLayout />
         </Allotment.Pane>
@@ -32,4 +28,3 @@ export const CodeBox: FC = () => {
     </div>
   );
 };
-
