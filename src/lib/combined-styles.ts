@@ -1,3 +1,8 @@
+export const strokeIconStyle = {strokeWidth: 1}
+export const rotated180 = {rotate: '180deg'}
+export const buttonIconClasses = 'cursor-pointer w-6 h-6 rounded-full hover:bg-white/50 hover:text-black p-0.5 transition-colors duration-900'
+export const lightTitleTextForeground = {color: 'oklch(35% 40% 230)'}
+export const darkTitleTextForeground = {color: 'oklch(65% 25% 230)'}
 export const thinIconStyle = {
   strokeWidth: 0.75,
 }
@@ -31,3 +36,46 @@ export const modalItemsList = "grid gap-2  max-h-[80vh] overflow-y-auto";
 export const modalContentScrollable = "w-full max-h-[80vh] overflow-y-auto";
 export const modalItemRow = "flex flex-row items-center justify-start gap-2";
 export const modalItemInfo = "flex items-center text-[x-small] sm:text-base gap-2";
+
+// ClassNames
+export const buttonClassNames = `
+flex flex-row gap-2 items-center justify-between
+rounded-full bg-primary text-white
+w-fit
+px-4 py-1
+cursor-pointer
+select-none
+text-sm font-light
+`;
+
+export const buttonNotReadyClassNames = `
+flex flex-row gap-2 items-center justify-between
+rounded-full bg-backgrond text-foreground/30
+border border-primary/50
+w-fit
+px-4 py-1
+cursor-not-allowed
+select-none
+text-sm font-light
+`;
+
+export const dropStyle = `
+flex flex-row
+rounded-xl
+border-[2px] border-dashed
+border-foreground/5
+p-5
+items-center
+justify-center
+`
+
+export const badgeClasses: string = `
+px-3 py-1
+text-xxs
+bg-primary
+text-white
+rounded-full
+cursor-pointer
+select-none
+w-fit
+`

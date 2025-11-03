@@ -3,7 +3,7 @@ import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
 import CodeMirror from '@uiw/react-codemirror';
 import { duotoneLight, tokyoNight } from '@uiw/codemirror-themes-all';
 import { Fullscreen, Paintbrush, Settings2 } from "lucide-react";
-import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
+import { buttonIconClasses, thinIconStyle } from "@/lib/combined-styles";
 import { useTheme } from "@/contexts/theme-context";
 import { TooltipCompact } from "@/components/tooltip-compact";
 import { useProjectContext, type WebLanguageType } from "@/contexts/project-context";

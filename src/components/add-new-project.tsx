@@ -1,7 +1,7 @@
 import { NameInput } from "@/components/name-input"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { useProjectContext } from "@/contexts/project-context"
-import { buttonIconClasses, thinIconStyle } from "@/lib/styles"
+import { buttonIconClasses, thinIconStyle } from "@/lib/combined-styles"
 import { PlusCircle } from "lucide-react"
 import type { FC } from "react"
 import { toast } from "sonner"

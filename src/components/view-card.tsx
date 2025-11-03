@@ -1,5 +1,5 @@
 import { useProjectContext } from "@/contexts/project-context";
-import { buttonIconClasses, thinIconStyle } from "@/lib/styles";
+import { buttonIconClasses, thinIconStyle } from "@/lib/combined-styles";
 import { cn } from "@/lib/utils";
 import { Fullscreen } from "lucide-react";
 import { useRef, type FC } from "react";

@@ -7,10 +7,11 @@ import { TooltipCompact } from "@/components/tooltip-compact"
 import type { CodeCardProps } from "@/components/code-card"
 import { Circle, CircleCheckBig, CropIcon, Globe, Settings2, XCircle } from "lucide-react"
 import { useState, type FC } from "react"
-import { buttonIconClasses } from "@/lib/styles"
+
 import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css'
 import { toast } from "sonner"
+import { buttonIconClasses } from "@/lib/combined-styles"
 
 export const SettingsModal = () => {
   const { open, close, tab, setTab } = useSettingsModal()
@@ -199,7 +200,13 @@ export const CdnSelect: FC<CdnLinkType> = ({ name, type, url, description }) => 
 const ProjectGeneralSettingsTab: FC = () => {
   const { projectName } = useProjectContext()
   const [cropping, setCropping] = useState<boolean>(false)
-  const [crop, setCrop] = useState<Crop>()
+  const [crop, setCrop] = useState<Crop>({
+    unit: '%',
+    width: 100,
+    height: 100,
+    x: 0,
+    y: 0,
+  })
 
   const cropImage = async () => {
     try {
@@ -227,6 +234,7 @@ const ProjectGeneralSettingsTab: FC = () => {
     <div>
       <div className="p-2 mt-1 flex flex-col gap-2">
         <div className="text-lg font-bold tracking-tighter">General</div>
+        <div className="text-md">Project Thumbnail</div>
         <div>
           {
             !cropping &&
@@ -250,7 +258,7 @@ const ProjectGeneralSettingsTab: FC = () => {
                         rounded-xl border-foreground/10 border-1
                         p-1
                         `}
-                src={`api/image/project/${projectName}`}
+                src={`api/image/project/${projectName}?md=${Date.now().toFixed()}`}
               />
 
             </div>
@@ -271,23 +279,25 @@ const ProjectGeneralSettingsTab: FC = () => {
 
                 <div
                   className="m-2 flex flex-col items-center bg-primary p-3 text-background rounded-xl select-none cursor-pointer w-20"
-                  onClick={() => {
-                    cropImage()
-                  }}
+                  onClick={
+                    async () => {
+                      await cropImage()
+                      setCropping(false)
+                    }}
                 >
                   <CircleCheckBig className={buttonIconClasses}
                   />
-                  <div className="text-[xx-small]">Cancel</div>
+                  <div className="text-[xx-small]">Crop</div>
                 </div>
               </div>
 
               <ReactCrop
                 crop={crop}
                 aspect={16 / 9}
-                onChange={(c) => setCrop(c)}
+                onChange={(_, p) => setCrop(p)}
               >
                 <img
-                  src={`api/image/project/${projectName}`}
+                  src={`api/image/project/${projectName}?md=${Date.now().toFixed()}`}
                 />
               </ReactCrop>
             </div>

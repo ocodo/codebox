@@ -1,4 +1,4 @@
-import { modalClose, modalContent, thinIconStyle } from "@/lib/styling";
+import { modalClose, modalContent, thinIconStyle } from "@/lib/combined-styles";
 import { cn } from "@/lib/utils";
 import { CircleX } from "lucide-react";
 

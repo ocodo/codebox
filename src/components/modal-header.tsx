@@ -1,4 +1,4 @@
-import { modalHeader, modalTitle } from "@/lib/styling"
+import { modalHeader, modalTitle } from "@/lib/combined-styles"
 import type { ReactNode, FC } from "react"
 
 interface ModalHeaderProps {

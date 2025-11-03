@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { darkTitleTextForeground, lightTitleTextForeground, thinIconStyle } from '@/lib/styles';
+import { darkTitleTextForeground, lightTitleTextForeground, thinIconStyle } from '@/lib/combined-styles';
 import { useProjectContext } from '@/contexts/project-context';
 import { CodeBoxIcon } from '@/components/codebox-icon';
 import { ProjectToolbar } from '@/components/project.-toolbar';

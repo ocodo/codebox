@@ -1,12 +1,12 @@
-import { LongPressTooltipButton } from "@/components/long-press-tooltip-button"
-import { useProjectContext } from "@/contexts/project-context"
-import { buttonIconClasses, strokeIconStyle, thinIconStyle } from "@/lib/styles"
-import { Zap, ZapOff } from "lucide-react"
-import type { FC } from "react"
+import { LongPressTooltipButton } from "@/components/long-press-tooltip-button";
+import { useProjectContext } from "@/contexts/project-context";
+import { buttonIconClasses, strokeIconStyle, thinIconStyle } from "@/lib/combined-styles";
+import { Zap, ZapOff } from "lucide-react";
+import type { FC } from "react";
 
 export const LiveUpdatingToggle: FC = () => {
 
-  const { setLiveUpdating, liveUpdating } = useProjectContext()
+  const { setLiveUpdating, liveUpdating } = useProjectContext();
 
   return (
     <LongPressTooltipButton

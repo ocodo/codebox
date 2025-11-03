@@ -1,4 +1,4 @@
-import { ProjectIndexCard } from "@/components/project-card"
+import { ProjectCard } from "@/components/project-card"
 import { useProjectContext } from "@/contexts/project-context"
 import { type FC, useEffect } from "react"
 
@@ -16,7 +16,7 @@ export const ProjectSelector: FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 p-3 gap-2">
           {
             projectList.map(
-              (project) => <ProjectIndexCard key={project} project={project} />
+              (project) => <ProjectCard key={project} project={project} />
             )
           }
         </div>

@@ -1,10 +1,10 @@
 import { useProjectContext } from "@/contexts/project-context"
 import type { FC } from "react"
 
-interface ProjectIndexCardProps {
+interface ProjectCardProps {
   project: string
 }
-export const ProjectIndexCard: FC<ProjectIndexCardProps> = ({ project }) => {
+export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
   const { setProjectName } = useProjectContext()
 
   return (
@@ -17,7 +17,7 @@ export const ProjectIndexCard: FC<ProjectIndexCardProps> = ({ project }) => {
                  transition-colors duration-200`}>
       <img
         className="rounded-lg  border-1 border-foreground/20 w-full h-full object-cover"
-        src={`api/image/project/${project}`} />
+        src={`api/image/project/${project}?md=${Date.now().toFixed()}`} />
       <div>
         {project}
       </div>

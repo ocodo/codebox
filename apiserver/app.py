@@ -11,6 +11,7 @@ import json
 import shutil
 import sys
 import logging
+from PIL import Image
 
 # from ruamel.yaml import YAML
 CONTENT_TYPE_MAPPING = {
@@ -60,14 +61,19 @@ def git_show(commit):
             }
         )
 
-    return {
-        "sha": commit.hexsha,
-        "message": commit.message,
-        "author": {"name": commit.author.name, "email": commit.author.email},
-        "committer": {"name": commit.committer.name, "email": commit.committer.email},
-        "date": commit.committed_datetime.isoformat(),
-        "diffs": diffs,
-    }
+    return JSONResponse(
+        {
+            "sha": commit.hexsha,
+            "message": commit.message,
+            "author": {"name": commit.author.name, "email": commit.author.email},
+            "committer": {
+                "name": commit.committer.name,
+                "email": commit.committer.email,
+            },
+            "date": commit.committed_datetime.isoformat(),
+            "diffs": diffs,
+        }
+    )
 
 
 @api.get("/health", tags=["api"])
@@ -111,14 +117,16 @@ async def api_documentation(request: Request):
 async def get_projects():
     project_root_path = Path(config.project_root)
     if project_root_path.exists():
-        return JSONResponse([
-            project.name
-            for project in project_root_path.glob("/".join(["*"] * 1))
-            if project.is_dir()
-        ])
+        project_directories = sorted(
+            [p for p in project_root_path.glob("*") if p.is_dir()],
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        names = [f"{p.name}" for p in project_directories]
+        return JSONResponse(names)
 
     else:
-        raise HTTPException(404)
+        raise HTTPException(404, f"no dirs in: {project_root_path}")
 
 
 @api.get("/history/{name}")
@@ -164,7 +172,7 @@ async def get_project_files(name: str):
             {"filename": file.name, "mtime": file.stat().st_mtime}
             for file in project_path.glob("/".join(["*"] * 1))
         ]
-        return files
+        return JSONResponse(files)
     else:
         raise HTTPException(404, f"{name}")
 
@@ -226,7 +234,9 @@ async def create_project(name: str):
                 committer=git_author,
             )
 
-            return {"detail": f"created f{name}", "commit": git_show(commit)}
+            return JSONResponse(
+                {"detail": f"created f{name}", "commit": git_show(commit)}
+            )
 
         except Exception as e:
             raise HTTPException(500, f"Error creating project {name}\n\n{e}")
@@ -245,7 +255,8 @@ def git_commit_project(name: str):
             committer=git_author,
         )
 
-        return {"detail": "success", "commit": git_show(commit)}
+        return JSONResponse({"detail": "success", "commit": git_show(commit)})
+
     except Exception as e:
         HTTPException(500, f"{e}")
 
@@ -254,15 +265,20 @@ def git_commit_project(name: str):
 async def update_project_file_content(name: str, filename: str, request: Request):
     project_root = Path(config.project_root, name)
     project_file_path = project_root / filename
+
     data = await request.json()
     if data.get("content"):
         project_file_path.write_text(data["content"])
     else:
         project_file_path.write_text("")
 
-    return {
-        "detail": f"updated {name}/{filename} (use api/commit/project/{name} to commit changes.)"
-    }
+    project_root.touch()
+
+    return JSONResponse(
+        {
+            "detail": f"updated {name}/{filename} (use api/commit/project/{name} to commit changes.)"
+        }
+    )
 
 
 @api.get("/image/project/{name}")
@@ -271,17 +287,44 @@ async def get_project_image(name: str):
     image_path = Path(config.project_root, name, image_filename)
 
     if not image_path.exists():
-        return Response(
-            Path("placeholder.png").read_bytes(), media_type="image/png"
-        )
+        return Response(Path("placeholder.png").read_bytes(), media_type="image/png")
 
-    return Response(
-        image_path.read_bytes(), media_type="image/png"
-    )
+    return Response(image_path.read_bytes(), media_type="image/png")
+
+
+@dataclass
+class Crop:
+    x: float
+    y: float
+    width: float
+    height: float
+    unit: str
+
 
 @api.post("/image/crop/project/{name}")
-async def crop_project_image(name: str, crop: Request):
-    return JSONResponse(await crop.json())
+async def crop_project_image(name: str, crop: Crop):
+    try:
+        image_path = Path(config.project_root, name, "code.png")
+        if image_path.exists():
+            with Image.open(image_path) as im:
+                width, height = im.size
+                bbox = (
+                    int(crop.x / 100 * width),
+                    int(crop.y / 100 * height),
+                    int((crop.x + crop.width) / 100 * width),
+                    int((crop.y + crop.height) / 100 * height),
+                )
+                im.crop(bbox).save(image_path)
+
+            Path(config.project_root, name).touch()
+
+            return JSONResponse({"detail": "ok"})
+        else:
+            return JSONResponse({"detail": "not found"}, status_code=404)
+
+    except Exception as e:
+        raise HTTPException(500, f"Error cropping {name} image\n\n{e}")
+
 
 @api.post("/image/project/{name}")
 async def upload_project_image(name: str, image: UploadFile = File(...)):
@@ -296,26 +339,30 @@ async def upload_project_image(name: str, image: UploadFile = File(...)):
         image_path = project_root / name / image_filename
         image_path.parent.mkdir(parents=True, exist_ok=True)
         image_path.write_bytes(image_data)
+        (project_root / name).touch()
 
         repo = Repo(Path(config.project_root, name))
         repo.index.add("*")
         repo.index.commit("Added/Updated snapshot image for {name}")
 
-        return {
-            "detail": f"Snapshot image saved for project {name}",
-        }
+        return JSONResponse(
+            {
+                "detail": f"Snapshot image saved for project {name}",
+            }
+        )
     except Exception as e:
         raise HTTPException(500, f"Error uploading image:\n\n{e}")
 
 
 @api.get("/code_processors")
 def get_code_processors():
-    return OmegaConf.to_container(config.code_processors, resolve=True)
+    return JSONResponse(OmegaConf.to_container(config.code_processors, resolve=True))
 
 
 @api.get("/cdn_links")
 def get_cdn_links():
-    return OmegaConf.to_container(config.cdn_links, resolve=True)
+
+    return JSONResponse(OmegaConf.to_container(config.cdn_links, resolve=True))
 
 
 @api.get("/composed/project/{name}")

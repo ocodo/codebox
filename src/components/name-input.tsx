@@ -1,4 +1,4 @@
-import { buttonIconClasses, thinIconStyle } from "@/lib/styles"
+import { buttonIconClasses, thinIconStyle } from "@/lib/combined-styles"
 import { CircleX } from "lucide-react"
 import { useState, type FC, type ReactNode } from "react"
 

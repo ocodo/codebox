@@ -7,15 +7,11 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { ProjectProvider, useProjectContext } from '@/contexts/project-context';
 import { SettingsModalProvider } from '@/contexts/settings-context';
 import { ThemeProvider } from '@/contexts/theme-provider';
-
-import { useEffect, type FC } from 'react';
+import { UploadedImagesProvider } from '@/contexts/uploaded-images-provider';
+import type { FC } from 'react';
 
 const Main: FC = () => {
   const { projectName } = useProjectContext()
-
-  useEffect(() => {
-    console.log(`Project Name: ${projectName}`)
-  }, [projectName])
 
   return (
     <div className='h-[100vh]'>
@@ -34,13 +30,15 @@ export const App: FC = () => {
   return (
     <ThemeProvider>
       <TooltipProvider>
-        <SettingsModalProvider>
-          <ProjectProvider>
-            <Main />
-            <SettingsModal />
-            <Toaster />
-          </ProjectProvider>
-        </SettingsModalProvider>
+        <UploadedImagesProvider>
+          <SettingsModalProvider>
+            <ProjectProvider>
+              <Main />
+              <SettingsModal />
+              <Toaster />
+            </ProjectProvider>
+          </SettingsModalProvider>
+        </UploadedImagesProvider>
       </TooltipProvider>
     </ThemeProvider>
   )

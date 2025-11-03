@@ -1,6 +1,6 @@
 import { Moon, Sun } from "lucide-react"
 import type { FC } from "react"
-import { buttonIconClasses } from "@/lib/styles"
+import { buttonIconClasses } from "@/lib/combined-styles"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import { useTheme } from "@/contexts/theme-context"
 
