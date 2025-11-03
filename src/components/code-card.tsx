@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
 import CodeMirror from '@uiw/react-codemirror';
 import { duotoneLight, tokyoNight } from '@uiw/codemirror-themes-all';
@@ -20,7 +20,6 @@ export interface CodeCardProps {
   code: string;
   setCode: Dispatch<SetStateAction<string>>;
   mtime: number;
-  save: () => void;
   extension: any[]
   icon: ReactNode
 }
@@ -31,9 +30,6 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
   const {
     focused,
     setFocused,
-    vertical,
-    horizontal,
-    isFocused,
     updateProjectFile,
     liveUpdating,
     codeProcessors
@@ -63,8 +59,7 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
     });
 
     setCode(() => {
-      const silent = true;
-      updateProjectFile(`code.${language}`, formatted, silent);
+      updateProjectFile(`code.${language}`, formatted, true);
       return formatted
     })
   }
@@ -73,8 +68,7 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
     async (val: string) => {
       setCode(() => {
         if (liveUpdating) {
-          const silent = true;
-          updateProjectFile(`code.${language}`, val, silent);
+          updateProjectFile(`code.${language}`, val, true);
         }
         return val
       })
@@ -82,25 +76,8 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
     [liveUpdating, updateProjectFile]
   );
 
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(document.fullscreenElement === cardRef.current);
-    };
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-    };
-  }, []);
-
   const focusCard = () => {
-    if (focused == title) {
-      setFocused('')
-    } else {
-      setFocused(title)
-    }
+    setFocused(focused == title ? '' : title)
   }
 
   const toggleFullscreen = () => {
@@ -113,55 +90,32 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
     }
   };
 
-  const codeMirrorHeight = () => {
-    if (isFullscreen) return '95hv';
-    if (isFocused(title) && horizontal()) return '80vh';
-    if (horizontal()) return '23vh'
-    return '30vh'
-  }
-
-  const codeMirrorWidth = () => {
-    if (isFullscreen) return '100vw';
-    if (isFocused(title) && vertical()) return '100vw';
-    return '50vw'
-  }
-
   const cardRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div ref={cardRef} className="h-full">
-      <div className='text-xs p-1'>
+    <div ref={cardRef} className="h-full flex flex-col">
+      <div className='text-xs p-1 flex-shrink-0'>
         <div className={`flex-row flex gap-2 items-center justify-between`} onDoubleClick={focusCard}>
           <TooltipCompact tooltipChildren={
             <div>
               Last updated {new Date(mtime * 1000).toLocaleString()}
             </div>
           } >
-            <div>
-              <div className='flex flex-row gap-2 items-center justify-start'>
-                <div>
-                  {icon}
-                </div>
-                <div>
-                  {title.toUpperCase()}
-                </div>
-              </div>
+            <div className='flex flex-row gap-2 items-center justify-start'>
+              {icon}
+              {title.toUpperCase()}
             </div>
           </TooltipCompact>
-          {
-            activeCodeProcessors.length > 0 && (
-              <TooltipCompact tooltipChildren={`${title} settings`}>
-                <div onClick={() => {
-                  setOpen(() => {
-                    setTab(language)
-                    return true
-                  })
-                }}>
-                  <Settings2 className={buttonIconClasses} />
-                </div>
-              </TooltipCompact>
-            )
-          }
+          {activeCodeProcessors.length > 0 && (
+            <TooltipCompact tooltipChildren={`${title} settings`}>
+              <div onClick={() => {
+                setOpen(true)
+                setTab(language)
+              }}>
+                <Settings2 className={buttonIconClasses} />
+              </div>
+            </TooltipCompact>
+          )}
           <div className={`
             flex flex-row gap-1 w-full transition-colors duration-300
             p-1 rounded-xl text-transparent
@@ -173,11 +127,11 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
           <div className="flex flex-row gap-2 items-center justify-end">
             <TooltipCompact tooltipChildren='Format Code'>
               <Paintbrush
-                onClick={() => formatCode()}
+                onClick={formatCode}
                 style={thinIconStyle}
                 className={buttonIconClasses} />
             </TooltipCompact>
-            <TooltipCompact tooltipChildren={'Full Screen'}>
+            <TooltipCompact tooltipChildren='Full Screen'>
               <Fullscreen
                 className={buttonIconClasses}
                 style={thinIconStyle}
@@ -186,16 +140,16 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
           </div>
         </div>
       </div>
-      <div className={`bg-card rounded-lg border border-card overflow-y-auto`}>
-        {extension &&
-          <CodeMirror
-            value={code}
-            width={codeMirrorWidth()}
-            height={codeMirrorHeight()}
-            theme={ifDark(tokyoNight, duotoneLight)}
-            extensions={extension}
-            onChange={onChange} />
-        }
+      <div className="flex-1 min-h-0">
+        <div className="bg-card rounded-lg border border-card w-full h-full overflow-auto">
+          {extension &&
+            <CodeMirror
+              value={code}
+              theme={ifDark(tokyoNight, duotoneLight)}
+              extensions={extension}
+              onChange={onChange} />
+          }
+        </div>
       </div>
     </div>
   );

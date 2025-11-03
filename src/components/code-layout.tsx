@@ -1,5 +1,6 @@
 import { CodeCard } from "@/components/code-card"
 import { useProjectContext } from "@/contexts/project-context"
+import { Allotment } from "allotment";
 
 import type { FC } from "react"
 
@@ -10,20 +11,6 @@ export const CodeLayout: FC = () => {
     layout,
   } = useProjectContext();
 
-  const containerClassName = () => {
-    if (layout == 'vertical') {
-      if (focused == '') {
-        return 'grid grid-cols-3 gap-2';
-      }
-      return 'grid grid-cols-1 gap-2';
-    }
-    if (layout == 'horizontal') {
-      if( focused == '') {
-        return 'grid grid-rows-3 gap-2';
-      }
-      return 'grid grid-rows-1 gap-2';
-    }
-  }
 
   const cards = () => {
     if (focused == '') {
@@ -34,10 +21,16 @@ export const CodeLayout: FC = () => {
   }
 
   return (
-    <div className={containerClassName()}>
-      {
-        cards().map(card => <CodeCard key={card.title} {...card} />)
-      }
+    <div className="h-full w-full">
+      <Allotment key={layout} vertical={layout === 'horizontal'}>
+        {
+          cards().map(card => (
+            <Allotment.Pane>
+              <CodeCard key={card.title} {...card} />
+            </Allotment.Pane>
+          ))
+        }
+      </Allotment>
     </div>
   )
 }

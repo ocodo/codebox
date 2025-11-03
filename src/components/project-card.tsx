@@ -16,7 +16,7 @@ export const ProjectIndexCard: FC<ProjectIndexCardProps> = ({ project }) => {
                  flex flex-col gap-2 items-center justify-center text-xs
                  transition-colors duration-200`}>
       <img
-        className="rounded-lg  border-1 border-foreground/20 w-[320px]"
+        className="rounded-lg  border-1 border-foreground/20 w-full h-full object-cover"
         src={`api/image/project/${project}`} />
       <div>
         {project}

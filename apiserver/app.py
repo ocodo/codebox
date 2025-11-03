@@ -285,22 +285,24 @@ async def upload_project_image(name: str, image: UploadFile = File(...)):
     if image.content_type != "image/png":
         raise HTTPException(status_code=400, detail="Only PNG images are supported")
 
-    image_data = await image.read()
+    try:
+        image_data = await image.read()
 
-    image_filename = "code.png"
-    project_root = Path(config.project_root)
-    image_path = project_root / name / image_filename
-    image_path.parent.mkdir(parents=True, exist_ok=True)
-    image_path.write_bytes(image_data)
+        image_filename = "code.png"
+        project_root = Path(config.project_root)
+        image_path = project_root / name / image_filename
+        image_path.parent.mkdir(parents=True, exist_ok=True)
+        image_path.write_bytes(image_data)
 
-    repo = Repo(Path(config.project_root, name))
-    repo.index.add("*")
-    commit = repo.index.commit("Added/Updated snapshot image for {name}")
+        repo = Repo(Path(config.project_root, name))
+        repo.index.add("*")
+        repo.index.commit("Added/Updated snapshot image for {name}")
 
-    return {
-        "detail": f"Snapshot image saved for project {name} ({len(image_data)/1024}kb)",
-        "commit": git_show(commit),
-    }
+        return {
+            "detail": f"Snapshot image saved for project {name}",
+        }
+    except Exception as e:
+        raise HTTPException(500, f"Error uploading image:\n\n{e}")
 
 
 @api.get("/code_processors")
@@ -346,9 +348,9 @@ async def get_project_composed(
                 cdn_links = "\n".join(
                     [
                         (
-                            f'<script src="{item["url"]}"></script>'
+                            f'<script crossorigin="anonymous" src="{item["url"]}"></script>'
                             if item["type"] == "script"
-                            else f'<link rel="stylesheet" href="{item["url"]}"></link>'
+                            else f'<link rel="stylesheet" crossorigin href="{item["url"]}"></link>'
                         )
                         for item in active_cdn_link_dicts
                     ]

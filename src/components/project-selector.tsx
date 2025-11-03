@@ -10,14 +10,16 @@ export const ProjectSelector: FC = () => {
   }, [])
 
   return (
-    <div className="p-4 bg-card border-white/20 border-1 rounded-lg m-5 shadow-lg">
+    <div className="p-4 bg-card border-white/20 border-1 rounded-lg m-5 shadow-lg overflow-y-auto max-h-[80vh]">
       <div className="text-xl tracking-tighter font-black">Projects</div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 p-3 gap-2">
-        {
-          projectList.map(
-            (project) => <ProjectIndexCard key={project} project={project} />
-          )
-        }
+      <div className="">
+        <div className="grid grid-cols-1 sm:grid-cols-3 p-3 gap-2">
+          {
+            projectList.map(
+              (project) => <ProjectIndexCard key={project} project={project} />
+            )
+          }
+        </div>
       </div>
     </div>
   )

@@ -6,10 +6,9 @@ import { useRef, type FC } from "react";
 
 
 export const ViewCard: FC = () => {
-  const { projectName, updating, setUpdating, horizontal } = useProjectContext()
+  const { projectName, updating, setUpdating } = useProjectContext()
   const url = `/api/composed/project/${projectName}`;
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  // const isFullscreen = document.fullscreenElement === iframeRef?.current;
 
   const iframeUrl = () => {
     if (updating) {
@@ -48,7 +47,7 @@ export const ViewCard: FC = () => {
         <iframe
           id="iframe-view"
           ref={iframeRef}
-          className={`w-full ${horizontal() ? 'h-[83vh]' : 'h-[47vh]'}`}
+          className={`w-full h-full`}
           src={iframeUrl()}></iframe>
       }
     </div>
