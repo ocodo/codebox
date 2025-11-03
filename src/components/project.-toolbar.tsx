@@ -18,6 +18,7 @@ export const ProjectToolbar: FC = () => {
   const {
     setProjectName,
     projectName,
+    closeProject,
     renameCurrentProject,
     deleteCurrentProject,
     htmlCode,

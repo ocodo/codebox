@@ -78,6 +78,7 @@ export interface ProjectContextType {
   commitProjectChanges: () => Promise<void>;
   liveUpdating: boolean;
   setLiveUpdating: Dispatch<SetStateAction<boolean>>;
+  closeProject: () => void;
 }
 
 export const ProjectContext = createContext<ProjectContextType>({} as ProjectContextType);
@@ -126,6 +127,10 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const horizontal = () => layout == 'horizontal';
 
   const isFocused = (title: string) => focused == title
+
+  const closeProject = () => {
+    setProjectName(undefined)
+  }
 
   const projectCode: ProjectCodeType[] = [
     {
@@ -381,16 +386,14 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       )
       if (response.ok) {
         toast(`${projectName} deleted`)
-        setProjectName(undefined)
+        closeProject()
       } else {
         toast(`Error deleting ${projectName}`)
       }
     } else {
       toast(`No project open`)
     }
-
   }
-
 
   const fetchProjectJsonFile = async (filename: string) => {
     const response = await fetch(`api/project/${projectName}/${filename}`);
@@ -420,7 +423,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
           }
         });
     } else {
-      setProjectName(undefined)
+      closeProject()
       toast(`${name} isn't a project`)
     }
   }
@@ -468,8 +471,8 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       setFocused,
       liveUpdating,
       setLiveUpdating,
-      updating, // - to signal an update is taking place
-      setUpdating, // - " -
+      updating,
+      setUpdating,
       renameCurrentProject,
       deleteCurrentProject,
       snapshotView,
@@ -484,6 +487,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       activeProcessors,
       fetchActiveProcessors,
       updateActiveProcessors,
+      closeProject,
     }}>
       {children}
     </ProjectContext.Provider>

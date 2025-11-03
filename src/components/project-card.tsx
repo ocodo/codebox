@@ -10,7 +10,7 @@ export const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
   return (
     <div
       onClick={() => {
-        setProjectName(project)
+        if (project) setProjectName(project)
       }}
       className={`cursor-pointer p-2 px-4 hover:bg-background hover:shadow-md rounded-xl
                  flex flex-col gap-2 items-center justify-center text-xs

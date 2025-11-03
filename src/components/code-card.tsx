@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useRef } from 'react';
 import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
 import CodeMirror from '@uiw/react-codemirror';
 import { duotoneLight, tokyoNight } from '@uiw/codemirror-themes-all';
@@ -13,6 +13,7 @@ import parserBabel from "prettier/parser-babel";
 import prettier from "prettier/standalone";
 import * as parserHtml from "prettier/parser-html";
 import * as parserPostCSS from "prettier/parser-postcss";
+import { useDebounceCallback } from 'usehooks-ts';
 
 export interface CodeCardProps {
   title: string;
@@ -64,7 +65,7 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
     })
   }
 
-  const onChange = useCallback(
+  const onChange = useDebounceCallback(
     async (val: string) => {
       setCode(() => {
         if (liveUpdating) {
@@ -72,8 +73,7 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
         }
         return val
       })
-    },
-    [liveUpdating, updateProjectFile]
+    }, 2000, { trailing: true }
   );
 
   const focusCard = () => {
