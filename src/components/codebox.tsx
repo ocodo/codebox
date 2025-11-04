@@ -16,7 +16,7 @@ export const CodeBox: FC = () => {
   }, [projectName, fetchProjectFiles]);
 
   return (
-    <div className="h-full">
+    <div className="h-full" key={projectName}>
       <Allotment vertical={layout === "vertical"} separator={true} key={layout}>
         <Allotment.Pane>
           <CodeLayout />

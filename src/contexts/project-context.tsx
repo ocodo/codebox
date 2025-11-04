@@ -466,6 +466,8 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
               code.setCode(content);
               const file = data.find((projectFile) => projectFile.filename == code.filename);
               if (file) code.mtimeSet(file.mtime);
+            } else {
+              code.setCode('');
             }
           }
         });
