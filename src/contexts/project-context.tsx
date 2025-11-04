@@ -235,11 +235,20 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    if (projectName) {
-      fetchActiveCdnLinks()
-      fetchActiveProcessors()
-    }
-  }, [projectName])
+    activeCdnLinks.clear();
+    activeProcessors.clear();
+    setCssCode('');
+    setHtmlCode('');
+    setJsCode('');
+
+    setTimeout(() => {
+      if (projectName) {
+        fetchActiveCdnLinks();
+        fetchActiveProcessors();
+        fetchProjectFiles(projectName);
+      }
+    }, 300);
+  }, [projectName]);
 
   const projectCodeLookup = projectCode.reduce((acc, current) => {
     acc[current.title] = current;

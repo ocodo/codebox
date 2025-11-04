@@ -1,4 +1,4 @@
-import { CodeBox } from '@/components/codebox-main';
+import { CodeBox } from '@/components/codebox';
 import { Heading } from '@/components/heading';
 import { ProjectSelector } from '@/components/project-selector';
 import { SettingsModal } from '@/components/settings-modal';
