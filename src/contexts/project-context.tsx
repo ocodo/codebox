@@ -294,9 +294,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     } else {
       toast.success(`Uploaded snapshot`)
     }
-
   }
-
 
   const snapshotView = async () => {
     const iframe = document.getElementById('iframe-view') as HTMLIFrameElement;
