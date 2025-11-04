@@ -200,10 +200,12 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const activeCdnLinks = useSet<string>([])
 
   const fetchActiveCdnLinks = async () => {
-    const data = await fetchProjectJsonFile('code.cdn')
+    const data = await fetchProjectJsonFile('code.cdn');
     if (Array.isArray(data)) {
-      activeCdnLinks.clear()
-      data.forEach(activeCdnLinks.add)
+      activeCdnLinks.clear();
+      data.forEach(activeCdnLinks.add);
+    } else {
+      activeCdnLinks.clear();
     }
   }
 
