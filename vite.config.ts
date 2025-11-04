@@ -9,6 +9,7 @@ export default defineConfig({
   build: {
     outDir: "./apiserver/dist",
     chunkSizeWarningLimit: 5000,
+    sourcemap: true,
   },
 
   server: {

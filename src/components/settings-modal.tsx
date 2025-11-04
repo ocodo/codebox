@@ -1,17 +1,14 @@
 import { ModalHeader } from "@/components/modal-header"
 import { ModalOverlay } from "@/components/modal-overlay"
 import { useSettingsModal } from "@/contexts/settings-context"
-
 import { useProjectContext, type CdnLinkType, type CodeProcessorType } from "@/contexts/project-context"
 import { TooltipCompact } from "@/components/tooltip-compact"
 import type { CodeCardProps } from "@/components/code-card"
 import { Circle, CircleCheckBig, CropIcon, Globe, Settings2, XCircle } from "lucide-react"
 import { useState, type FC } from "react"
-
+import { buttonIconClasses } from "@/lib/combined-styles"
 import ReactCrop, { type Crop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css'
-import { toast } from "sonner"
-import { buttonIconClasses } from "@/lib/combined-styles"
 
 export const SettingsModal = () => {
   const { open, close, tab, setTab } = useSettingsModal()
@@ -198,7 +195,7 @@ export const CdnSelect: FC<CdnLinkType> = ({ name, type, url, description }) => 
 }
 
 const ProjectGeneralSettingsTab: FC = () => {
-  const { projectName } = useProjectContext()
+  const { projectName, cropProjectImageOnServer } = useProjectContext()
   const [cropping, setCropping] = useState<boolean>(false)
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
@@ -207,28 +204,6 @@ const ProjectGeneralSettingsTab: FC = () => {
     x: 0,
     y: 0,
   })
-
-  const cropImage = async () => {
-    try {
-
-      const response = await fetch(`api/image/crop/project/${projectName}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(crop)
-      })
-
-      if (response.ok) {
-        toast.success('Cropped project image')
-        return
-      }
-    } catch {
-
-    }
-
-    toast.error(`Error cropping project image`)
-  }
 
   return (
     <div>
@@ -281,7 +256,7 @@ const ProjectGeneralSettingsTab: FC = () => {
                   className="m-2 flex flex-col items-center bg-primary p-3 text-background rounded-xl select-none cursor-pointer w-20"
                   onClick={
                     async () => {
-                      await cropImage()
+                      await cropProjectImageOnServer(crop)
                       setCropping(false)
                     }}
                 >

@@ -10,6 +10,7 @@ import type { CodeCardProps } from "@/components/code-card";
 import { useLocalStorage } from "usehooks-ts";
 import { useSet } from '@uidotdev/usehooks';
 import { Asterisk, Braces, CodeXml } from "lucide-react";
+import type { Crop } from "react-image-crop";
 
 export type LayoutType = 'vertical' | 'horizontal';
 
@@ -36,6 +37,8 @@ export interface ProjectContextType {
   setProjectName: Dispatch<SetStateAction<string | undefined>>;
   updateProjectFile: (name: string, code: string, silent?: boolean) => Promise<void>;
   fetchProjectFiles: (name: string) => Promise<void>;
+  cropProjectImageOnServer: (crop: Crop) => Promise<void>;
+  uploadProfilePng: (file: File) => Promise<void>;
   createProject: (name: string) => Promise<void>
   htmlCode: string;
   setHtmlCode: Dispatch<SetStateAction<string>>;
@@ -130,6 +133,25 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const closeProject = () => {
     setProjectName(undefined)
+  }
+
+  const cropProjectImageOnServer = async (crop: Crop) => {
+    try {
+      const response = await fetch(`api/image/crop/project/${projectName}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(crop)
+      })
+
+      if (response.ok) {
+        toast.success('Cropped project image')
+        return
+      }
+    } catch {
+    }
+    toast.error(`Error cropping project image`)
   }
 
   const projectCode: ProjectCodeType[] = [
@@ -248,6 +270,31 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const { mtimeSet, ...restOfCodeProps } = code;
     return { ...card, ...restOfCodeProps } as CodeCardProps;
   });
+
+  const uploadProfilePng = async (file: File) => {
+    const formData = new FormData();
+
+    if (file.type !== 'image/png') {
+      toast.error('Only PNG images are supported for project thumbnails');
+      return;
+    }
+
+    formData.append('image', file, 'code.png');
+
+    const response = await fetch(`api/image/project/${projectName}`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      toast.error('Upload failed');
+      return;
+    } else {
+      toast.success(`Uploaded snapshot`)
+    }
+
+  }
+
 
   const snapshotView = async () => {
     const iframe = document.getElementById('iframe-view') as HTMLIFrameElement;
@@ -452,6 +499,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       setProjectName,
       fetchProjectFiles,
       updateProjectFile,
+      uploadProfilePng,
       createProject,
       htmlCode,
       setHtmlCode,
@@ -488,6 +536,7 @@ export const ProjectProvider: FC<{ children: ReactNode }> = ({ children }) => {
       fetchActiveProcessors,
       updateActiveProcessors,
       closeProject,
+      cropProjectImageOnServer,
     }}>
       {children}
     </ProjectContext.Provider>

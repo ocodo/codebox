@@ -42,10 +42,11 @@ export const buttonClassNames = `
 flex flex-row gap-2 items-center justify-between
 rounded-full bg-primary text-white
 w-fit
-px-4 py-1
+px-3 py-1
 cursor-pointer
 select-none
 text-sm font-light
+shadow-lg
 `;
 
 export const buttonNotReadyClassNames = `
@@ -60,7 +61,7 @@ text-sm font-light
 `;
 
 export const dropStyle = `
-flex flex-row
+flex flex-col
 rounded-xl
 border-[2px] border-dashed
 border-foreground/5
