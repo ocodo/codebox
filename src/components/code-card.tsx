@@ -125,7 +125,7 @@ export const CodeCard: FC<CodeCardProps> = ({ icon, title, language, code, mtime
             doubleclick to {focused == title ? 'restore' : 'maximize'}
           </div>
           <div className="flex flex-row gap-2 items-center justify-end">
-            <TooltipCompact tooltipChildren='Format Code'>
+            <TooltipCompact tooltipChildren={`Format ${title.toUpperCase()}`}>
               <Paintbrush
                 onClick={formatCode}
                 style={thinIconStyle}

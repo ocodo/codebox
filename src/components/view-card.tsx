@@ -5,7 +5,7 @@ import { Fullscreen } from "lucide-react";
 import { type FC, useRef } from "react";
 
 export const ViewCard: FC = () => {
-  const { projectName, htmlCode, cssCode, jsCode } = useProjectContext();
+  const { projectName} = useProjectContext();
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const toggleFullscreen = () => {
@@ -19,19 +19,6 @@ export const ViewCard: FC = () => {
   };
 
   if (!projectName) return null;
-
-  // Build the full HTML document as a string for srcDoc
-  const srcDoc = `
-    <html>
-      <head>
-        <style>${cssCode}</style>
-      </head>
-      <body>
-        ${htmlCode}
-        <script>${jsCode}<\/script>
-      </body>
-    </html>
-  `;
 
   return (
     <div className="h-full">
@@ -47,8 +34,7 @@ export const ViewCard: FC = () => {
         id="iframe-view"
         ref={iframeRef}
         className="w-full h-full"
-        sandbox="allow-scripts allow-same-origin"
-        srcDoc={srcDoc}
+        src={`api/composed/project/${projectName}`}
       />
     </div>
   );
