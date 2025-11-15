@@ -23,13 +23,13 @@ uv sync
 
 # Bound for subnet access.
 # Start fastapi 
-fastapi dev --port 3789 &
+fastapi dev --port 1991 &
 # If you change this ^ port,
 # modify the proxy port
 # in `../vite.config.ts`
 
 cd ..
-vite --port 3788
+vite --port 1990
 ```
 
-[http://localhost:3788](http://localhost:3788)
+[http://localhost:1990](http://localhost:1990)
