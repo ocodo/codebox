@@ -11,26 +11,13 @@ Linux/macOS:
 ```bash
 git clone https://github.com/ocodo/codebox.git
 cd codebox
-```
 
-Config:
-
-```bash
-```
-
-
-
-```bash
 pnpm install
 cd apiserver
 cp config.example.yaml config.yaml
-```
+# note: `config.yaml` - `project_root:` defaults to `projects`
+# Projects are created as git repos there
 
-`config.yaml` - `project_root:` defaults to `projects`
-
-Set to any read/write storage path. Projects are created as git repos there.
-
-```
 . .venv/bin/activate
 uv sync
 
@@ -43,3 +30,5 @@ fastapi dev --port 3789 &
 cd ..
 vite --port 3788
 ```
+
+[http://localhost:3788](http://localhost:3788)
